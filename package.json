@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "prettier": "prettier .",
+    "prettier:check": "prettier . --check",
+    "prettier:write": "prettier . --write",
     "start": "nodemon --exec npm start"
   },
   "description": "Simple authentication api with fastify",
@@ -17,5 +19,6 @@
   "devDependencies": {
     "nodemon": "2.0.16",
     "prettier": "2.7.1"
-  }
+  },
+  "type": "module"
 }
