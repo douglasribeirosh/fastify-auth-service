@@ -2,6 +2,10 @@
   "name": "fastify-auth-api",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "prettier": "prettier .",
+    "start": "nodemon --exec npm start"
+  },
   "description": "Simple authentication api with fastify",
   "dependencies": {
     "fastify": "^4.1.0"
@@ -9,5 +13,9 @@
   "volta": {
     "node": "16.15.1",
     "npm": "8.12.2"
+  },
+  "devDependencies": {
+    "nodemon": "2.0.16",
+    "prettier": "2.7.1"
   }
 }
