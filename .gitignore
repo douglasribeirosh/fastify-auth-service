@@ -1,0 +1,20 @@
+# IDE settings
+/.idea/
+/.npm/
+/.vscode/
+/*.iml
+
+/node_modules/**
+
+# temp files
+/tmp/
+.DS_Store
+
+# log files
+npm-debug.log
+
+# local files
+*.local
+.env
+
+!.gitignore
