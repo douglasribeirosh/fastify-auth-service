@@ -18,6 +18,7 @@ pipelines:
         - step:
             name: Code linting
             script:
+              - npm install
               - npm run lint
             caches:
               - node
