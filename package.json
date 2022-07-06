@@ -9,7 +9,8 @@
     "prettier:check": "prettier . --check",
     "prettier:write": "prettier . --write",
     "start": "per-env",
-    "start:development": "nodemon --exec ts-node --esm src/back/main"
+    "start:development": "nodemon --exec ts-node --esm src/back/main",
+    "test": "echo 'NOT IMPLEMENTED'"
   },
   "description": "Simple authentication api with fastify",
   "dependencies": {
