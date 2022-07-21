@@ -1,0 +1,32 @@
+paths:
+  health:
+    head:
+      tags:
+        - Health
+      responses:
+        '204':
+          description: Health
+      security: []
+    get:
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Health
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+      security: []
+components:
+  schemas:
+    Health:
+      type: object
+      required:
+        - web
+      properties:
+        web:
+          type: string
+          enum:
+            - HEALTHY
+          description: Health

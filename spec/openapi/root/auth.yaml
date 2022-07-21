@@ -1,0 +1,47 @@
+paths:
+  token:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        description: Login payload
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginPayload'
+      responses:
+        '200':
+          description: Token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          $ref: '../errors.yaml#/components/responses/401'
+      security: []
+components:
+  schemas:
+    LoginPayload:
+      type: object
+      required:
+        - login
+        - password
+      properties:
+        login:
+          type: string
+          description: User login
+          default: user
+        password:
+          type: string
+          description: User password
+          default: defaulP4ssword!
+    Token:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+          description: Auth Token
+          default: defaultT0ken

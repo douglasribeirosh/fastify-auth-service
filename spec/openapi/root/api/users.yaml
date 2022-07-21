@@ -1,0 +1,162 @@
+paths:
+  me:
+    get:
+      description: Get logged in User
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Got User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '../../errors.yaml#/components/responses/401'
+        '404':
+          $ref: '../../errors.yaml#/components/responses/404'
+  users:
+    post:
+      description: Create one User (requires admin privileges)
+      tags:
+        - Users
+      requestBody:
+        description: User payload
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPayload'
+      responses:
+        '201':
+          description: User has been created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '../../errors.yaml#/components/schemas/BadRequest'
+              examples:
+                Default:
+                  value:
+                    code: BAD_REQUEST
+                    error: Bad Request
+                    message: The user entity is not complete
+                    statusCOde: 400
+        '401':
+          $ref: '../../errors.yaml#/components/responses/401'
+        '409':
+          $ref: '../../errors.yaml#/components/responses/409'
+    get:
+      description: Get all Users (requires admin privileges)
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Got Users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '401':
+          $ref: '../../errors.yaml#/components/responses/401'
+  userById:
+    get:
+      description: Get one User by its id (requires admin privileges)
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: Unique User id
+          required: true
+          schema:
+            $ref: '../../openapi.yaml#/components/schemas/id'
+          examples:
+            Random uuid:
+              value: 48f076fe-ebf7-454c-ba70-d4ad97c14e60
+      responses:
+        '200':
+          description: Got User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '../../errors.yaml#/components/responses/401'
+        '404':
+          $ref: '../../errors.yaml#/components/responses/404'
+    delete:
+      description: Delete User by its id (requires admin privileges)
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          description: Unique User id
+          required: true
+          schema:
+            $ref: '../../openapi.yaml#/components/schemas/id'
+          examples:
+            Random uuid:
+              value: 48f076fe-ebf7-454c-ba70-d4ad97c14e60
+      responses:
+        '204':
+          description: User has been deleted
+        '401':
+          $ref: '../../errors.yaml#/components/responses/401'
+        '404':
+          $ref: '../../errors.yaml#/components/responses/404'
+components:
+  schemas:
+    UserPayload:
+      type: object
+      required:
+        - login
+        - password
+      properties:
+        login:
+          type: string
+          description: User login
+          default: johndoe
+        password:
+          type: string
+          description: User password
+          default: findMySecretIfYouCan
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          description: User role
+          default: user
+    User:
+      type: object
+      required:
+        - id
+        - login
+        - role
+      properties:
+        id:
+          schema:
+            $ref: '../../openapi.yaml#/components/schemas/id'
+          default: 48f076fe-ebf7-454c-ba70-d4ad97c14e60
+        login:
+          type: string
+          description: User login
+          default: johndoe
+        role:
+          type: string
+          enum:
+            - user
+            - admin
+          description: User role
+          default: user
+    Users:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'

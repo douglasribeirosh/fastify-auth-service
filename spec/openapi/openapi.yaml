@@ -1,0 +1,33 @@
+openapi: '3.0.2'
+info:
+  title: WIP Fastfy Auth API
+  version: '0.0.1'
+  description: >
+    Openapi specification for Fastify Auth API
+servers:
+  - url: http://localhost:30666
+    description: Local development
+paths:
+  /health:
+    $ref: 'root/health.yaml#/paths/health'
+  /auth/token:
+    $ref: 'root/auth.yaml#/paths/token'
+  /api/users/me:
+    $ref: 'root/api/users.yaml#/paths/me'
+  /api/users:
+    $ref: 'root/api/users.yaml#/paths/users'
+  /api/users/{id}:
+    $ref: 'root/api/users.yaml#/paths/userById'
+components:
+  schemas:
+    id:
+      type: string
+      description: Object unique identifier with uuid format
+      default: 25424643-1393-4396-915a-07fc3cb33081
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
