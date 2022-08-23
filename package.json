@@ -16,7 +16,8 @@
   "description": "Simple authentication api with fastify",
   "dependencies": {
     "fastify": "^4.1.0",
-    "per-env": "1.0.2"
+    "per-env": "1.0.2",
+    "source-map-support": "0.5.21"
   },
   "volta": {
     "node": "16.15.1",

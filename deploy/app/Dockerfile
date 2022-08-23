@@ -30,4 +30,3 @@ COPY --from=app-build /usr/src/app/dist ./dist
 COPY package*.json ./
 EXPOSE ${PORT}
 CMD ["node", "-r", "source-map-support/register", "dist/back/main/index"]
-
