@@ -28,8 +28,8 @@ pipelines:
           name: Build and Push Image, and release
           deployment: Test
           script:
+            - docker login --username=$heroku_username --password=$heroku_password registry.heroku.com
             - cd deploy; sh build.sh
-            - docker login --username=$heroku_username --password=$heroku_password
             - IMAGE_NAME="dsh-fastify-auth-api/web"
             - docker push registry.heroku.com/$IMAGE_NAME
           services:
