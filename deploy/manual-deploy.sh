@@ -1,6 +1,6 @@
 #!/bin/bash
 #Execute from folder this folder
-##bash build.sh
+##bash manual-deploy.sh
 
 NAME="dsh-fastify-auth-api"
 [ -z "$1" ] && VERSION=latest || VERSION=$1

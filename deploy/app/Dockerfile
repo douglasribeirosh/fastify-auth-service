@@ -24,9 +24,11 @@ RUN npm run build && npm prune --omit=dev --ignore-scripts
 # Application image with dist
 FROM node-npm AS app
 ARG PORT
+ARG IMAGE_VERSION
 WORKDIR /usr/src/app
 COPY --from=app-build /usr/src/app/node_modules ./node_modules
 COPY --from=app-build /usr/src/app/dist ./dist
 COPY package*.json ./
+ENV IMAGE_VERSION ${IMAGE_VERSION}
 EXPOSE ${PORT}
 CMD ["node", "-r", "source-map-support/register", "dist/back/main/index"]
