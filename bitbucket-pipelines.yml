@@ -33,7 +33,7 @@ pipelines:
             - cd deploy; sh build.sh
             - IMAGE_NAME="dsh-fastify-auth-api/web"
             - docker push registry.heroku.com/$IMAGE_NAME
-            - heroku container:release web
+            - heroku container:release web --app dsh-fastify-auth-api
           services:
             - docker
           caches:
