@@ -22,3 +22,17 @@ pipelines:
               - npm run lint
             caches:
               - node
+  branches:
+    dev:
+      - step:
+          name: Build and Push Image, and release
+          script:
+            - cd deploy; sh build.sh
+            - docker login --username=$heroku_username --password=$heroku_password
+            - IMAGE_NAME="dsh-fastify-auth-api/web"
+            - docker push registry.heroku.com/$IMAGE_NAME
+          services:
+            - docker
+          caches:
+            - docker
+
