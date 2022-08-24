@@ -26,6 +26,7 @@ pipelines:
     dev:
       - step:
           name: Build and Push Image, and release
+          deployment: Test
           script:
             - cd deploy; sh build.sh
             - docker login --username=$heroku_username --password=$heroku_password
