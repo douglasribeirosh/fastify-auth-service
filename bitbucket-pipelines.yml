@@ -28,6 +28,10 @@ pipelines:
           name: Build and Push Image, and release
           deployment: Test
           script:
+            - echo \
+              'machine machine api.heroku.com
+                login $heroku_username
+                password $heroku_password' > ~/.netrc
             - docker login --username=$heroku_username --password=$heroku_password registry.heroku.com
             - curl https://cli-assets.heroku.com/install.sh | sh
             - cd deploy; sh build.sh
