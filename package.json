@@ -10,8 +10,6 @@
     "build:src:check-types:watch": "tsc --watch --noemit --preserveWatchOutput -p ./src/back/main/tsconfig.json",
     "build:src:transpile": "swc -s -d dist src/back/main src/test",
     "cover": "jest --coverage --runInBand -c src/back/test/jest.config.js",
-    "cover:e2e": "jest --coverage --runInBand -c src/back/test/e2e/jest.config.js",
-    "cover:e2e:open": "npm run with:opener dist/coverage/e2e/index.html",
     "cover:open": "npm run with:opener dist/coverage/all/index.html",
     "dev": "run-p build:src:check-types:watch dev:nodemon",
     "dev:nodemon": "npm run with:nodemon src/back/main/index.ts",
@@ -23,6 +21,7 @@
     "start:development": "node -r @swc-node/register src/back/main",
     "test": "jest --runInBand -c src/back/test/jest.config.js",
     "test:back:e2e": "jest --runInBand -c src/back/test/e2e/jest.config.js",
+    "test:back:unit": "jest --runInBand -c src/back/test/unit/jest.config.js",
     "with:nodemon": "npx -y nodemon@2.0.20",
     "with:opener": "npx -y opener@1.5.2"
   },
