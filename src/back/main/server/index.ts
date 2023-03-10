@@ -1,7 +1,8 @@
 import fastify, { FastifyBaseLogger, FastifyInstance, FastifyTypeProviderDefault } from 'fastify'
 import { Server as FastifyServer, IncomingMessage, ServerResponse } from 'http'
+import { ServerT } from '../types/server'
 
-class Server {
+class Server implements ServerT {
 
   fastifyServer?: FastifyInstance<FastifyServer, IncomingMessage, ServerResponse, FastifyBaseLogger, FastifyTypeProviderDefault> & PromiseLike<FastifyInstance<FastifyServer, IncomingMessage, ServerResponse, FastifyBaseLogger, FastifyTypeProviderDefault>>
 
