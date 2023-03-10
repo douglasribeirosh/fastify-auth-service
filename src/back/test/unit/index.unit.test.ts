@@ -11,8 +11,6 @@ describe('backend tests', () => {
     let serverStop: jest.Mocked<ServerT['stop']>
     let main: { bootstrap: () => Promise<void> }
     beforeAll(() => {
-      setTimeoutMock = jest.spyOn(global, 'setTimeout').mockImplementation()
-      processExitMock = jest.spyOn(process, 'exit').mockImplementation()
       serverStart = jest.fn()
       serverStop = jest.fn()
       const Server = function (): ServerT {
@@ -25,7 +23,8 @@ describe('backend tests', () => {
       main = requireFromBaseDir('src/back/main')
     })
     beforeEach(() => {
-
+      setTimeoutMock = jest.spyOn(global, 'setTimeout').mockImplementation()
+      processExitMock = jest.spyOn(process, 'exit').mockImplementation()
     })
     afterEach(() => {
       jest.resetAllMocks()
@@ -61,7 +60,11 @@ describe('backend tests', () => {
         await main.bootstrap()
         // Then
         expect(serverStart).toHaveBeenNthCalledWith(1)
-        expect(setTimeoutMock).toHaveBeenNthCalledWith(1, expect.any(Function), 3000)
+        expect(setTimeoutMock).toHaveBeenNthCalledWith(
+          1,
+          expect.any(Function),
+          3000
+        )
       })
     })
   })

@@ -8,7 +8,7 @@ const bootstrap = async () => {
   } catch (err) {
     console.error((err as Error).message)
     setTimeout(() => {
-      // process.exit(1)
+      process.exit(1)
     }, 3000)
   }
 }
