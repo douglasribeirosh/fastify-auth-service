@@ -1,6 +1,35 @@
 {
-  "extends": "@tsconfig/node16-strictest-esm/tsconfig.json",
+  "compileOnSave": true,
   "compilerOptions": {
-    "esModuleInterop": true
+    "alwaysStrict": true,
+    "allowJs": false,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "incremental": true,
+    "lib": [
+      "es2017",
+      "esnext.asynciterable"
+    ],
+    "listEmittedFiles": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "removeComments": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "outDir": "../dist",
+    "rootDir": ".",
+    "target": "es2017"
   }
 }
