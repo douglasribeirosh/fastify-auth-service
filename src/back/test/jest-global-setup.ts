@@ -6,7 +6,7 @@ import { join } from 'path'
 
 const jestGlobalSetup = () => {
   // deleteEnvVars('LOG_LEVEL', 'JWT_SECRET')
-  config({ path: join("../../../", '.env.test') })
+  config({ path: join('../../../', '.env.test') })
 }
 
 export default jestGlobalSetup

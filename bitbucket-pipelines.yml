@@ -14,7 +14,7 @@ pipelines:
               - node
             script:
               - npm install
-              - npm test
+              - npm run cover
         - step:
             name: Code linting
             script:
@@ -23,7 +23,7 @@ pipelines:
             caches:
               - node
   branches:
-    dev:
+    dev-disabled:
       - step:
           name: Build and Push Image, and release
           deployment: Test
