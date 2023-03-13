@@ -1,4 +1,4 @@
-import { Server } from "../../main/server"
+import { buildServer, Server, startServer, stopServer } from '../../main/server'
 import { e2e, request } from 'pactum'
 
 describe('backend tests', () => {
@@ -6,23 +6,19 @@ describe('backend tests', () => {
     describe('GET /health', () => {
       let server: Server | null
       beforeAll(async () => {
-        let serverBaseUrl = "http://localhost:33666"
-        server = new Server()
-        console.debug("Server starting....")
-        await server.start()
+        let serverBaseUrl = 'http://localhost:33666'
+        server = buildServer()
+        console.debug('Server starting....')
+        await startServer(server)
         request.setBaseUrl(serverBaseUrl)
       })
-      beforeEach(() => {
-
-      })
-      afterEach(async () => {
-
-      })
+      beforeEach(() => {})
+      afterEach(async () => {})
       afterAll(async () => {
         if (!server) {
           return
         }
-        await server.stop()
+        await stopServer(server)
       })
       test('should respond a healthy json', async () => {
         //Given
@@ -41,7 +37,8 @@ describe('backend tests', () => {
           .expectStatus(200)
           .expectJson({
             web: 'HEALTHY',
-          }).toss()
+          })
+          .toss()
         testCase.cleanup()
       })
     })

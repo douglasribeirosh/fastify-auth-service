@@ -7,19 +7,19 @@ describe('backend tests', () => {
   describe('index unit tests', () => {
     let setTimeoutMock: jest.SpyInstance
     let processExitMock: jest.SpyInstance
-    let serverStart: jest.Mocked<ServerT['start']>
-    let serverStop: jest.Mocked<ServerT['stop']>
+    let server: ServerT
+    let serverWithError: ServerT
+    let buildServer: () => ServerT
+    let startServer: (server: ServerT) => Promise<void>
+    let stopServer: (server: ServerT) => Promise<void>
     let main: { bootstrap: () => Promise<void> }
     beforeAll(() => {
-      serverStart = jest.fn()
-      serverStop = jest.fn()
-      const Server = function (): ServerT {
-        return {
-          start: serverStart,
-          stop: serverStop,
-        } as ServerT
-      }
-      doMockFromBaseDir('src/back/main/server', () => ({ Server }))
+      server = {} as ServerT
+      serverWithError = {} as ServerT
+      buildServer = jest.fn(() => server)
+      startServer = jest.fn()
+      stopServer = jest.fn()
+      doMockFromBaseDir('src/back/main/server', () => ({ buildServer, startServer, stopServer }))
       main = requireFromBaseDir('src/back/main')
     })
     beforeEach(() => {
@@ -43,14 +43,15 @@ describe('backend tests', () => {
         // When
         await main.bootstrap()
         // Then
-        expect(serverStart).toHaveBeenNthCalledWith(1)
+        expect(startServer).toHaveBeenNthCalledWith(1, server)
         expect(setTimeoutMock).not.toHaveBeenCalled()
         expect(processExitMock).not.toHaveBeenCalled()
       })
       test('should log and exit given failed to start the server', async () => {
+        when(buildServer).mockImplementation(() => serverWithError)
         // Given
         const error = new Error('oops')
-        when(serverStart).calledWith().mockRejectedValue(error)
+        when(startServer).calledWith(serverWithError).mockRejectedValue(error)
         when(setTimeoutMock)
           .calledWith(expect.any(Function), 3000)
           .mockImplementation((callback) => {
@@ -59,12 +60,8 @@ describe('backend tests', () => {
         // When
         await main.bootstrap()
         // Then
-        expect(serverStart).toHaveBeenNthCalledWith(1)
-        expect(setTimeoutMock).toHaveBeenNthCalledWith(
-          1,
-          expect.any(Function),
-          3000
-        )
+        expect(startServer).toHaveBeenNthCalledWith(1, serverWithError)
+        expect(setTimeoutMock).toHaveBeenNthCalledWith(1, expect.any(Function), 3000)
       })
     })
   })

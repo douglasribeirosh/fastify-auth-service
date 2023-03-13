@@ -1,10 +1,9 @@
-import { Server } from './server'
-import { ServerT } from './types/server'
+import { buildServer, startServer } from './server'
 
 const bootstrap = async () => {
   try {
-    const server: ServerT = new Server()
-    await server.start()
+    const server = buildServer()
+    await startServer(server)
   } catch (err) {
     console.error((err as Error).message)
     setTimeout(() => {
