@@ -1,8 +1,10 @@
+import { buildConfigFromEnv } from './config'
 import { buildServer, startServer } from './server'
 
 const bootstrap = async () => {
   try {
-    const server = buildServer()
+    const config = buildConfigFromEnv()
+    const server = buildServer(config)
     await startServer(server)
   } catch (err) {
     console.error((err as Error).message)

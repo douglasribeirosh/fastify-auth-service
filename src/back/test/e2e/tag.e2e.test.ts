@@ -1,32 +1,13 @@
-import { buildServer, Server, startServer, stopServer } from '../../main/server'
-import { e2e, request } from 'pactum'
+import { e2e } from 'pactum'
+import { getCurrentTestName, registerHooks } from './utils/test-case'
 
 describe('backend tests', () => {
   describe('backend server tag e2e tests', () => {
     describe('GET /tag', () => {
-      let server: Server | null
-      beforeAll(async () => {
-        let serverBaseUrl = 'http://localhost:33666'
-        server = buildServer()
-        console.debug('Server starting....')
-        await startServer(server)
-        request.setBaseUrl(serverBaseUrl)
-      })
-      beforeEach(() => {})
-      afterEach(async () => {})
-      afterAll(async () => {
-        if (!server) {
-          return
-        }
-        await stopServer(server)
-      })
+      registerHooks()
       test('should respond latest', async () => {
         //Given
-        const { currentTestName } = expect.getState()
-        if (!currentTestName) {
-          throw new Error('Impossible to get the current test name in expect state')
-        }
-        const testCase = e2e(currentTestName)
+        const testCase = e2e(getCurrentTestName())
         // await delay(3000000, true)
         await testCase
           .step('Get tagcheck')

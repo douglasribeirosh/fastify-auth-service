@@ -1,4 +1,6 @@
 import { when } from 'jest-when'
+import { defaultTestConfig } from '../../main/config'
+import { Config } from '../../main/types/config'
 import { ServerT } from '../../main/types/server'
 
 import { doMockFromBaseDir, requireFromBaseDir } from '../utils/jest-helper'
@@ -7,22 +9,28 @@ describe('backend tests', () => {
   describe('index unit tests', () => {
     let setTimeoutMock: jest.SpyInstance
     let processExitMock: jest.SpyInstance
+    let dotenvConfig: jest.SpyInstance
     let server: ServerT
     let serverWithError: ServerT
     let buildServer: () => ServerT
     let startServer: (server: ServerT) => Promise<void>
     let stopServer: (server: ServerT) => Promise<void>
+    let buildConfigFromEnv: () => Config
     let main: { bootstrap: () => Promise<void> }
+    let dotenv: any
     beforeAll(() => {
       server = {} as ServerT
       serverWithError = {} as ServerT
       buildServer = jest.fn(() => server)
       startServer = jest.fn()
       stopServer = jest.fn()
+      buildConfigFromEnv = () => defaultTestConfig
       doMockFromBaseDir('src/back/main/server', () => ({ buildServer, startServer, stopServer }))
       main = requireFromBaseDir('src/back/main')
+      dotenv = require('dotenv')
     })
     beforeEach(() => {
+      dotenvConfig = jest.spyOn(dotenv, 'config').mockImplementation()
       setTimeoutMock = jest.spyOn(global, 'setTimeout').mockImplementation()
       processExitMock = jest.spyOn(process, 'exit').mockImplementation()
     })
@@ -35,6 +43,9 @@ describe('backend tests', () => {
       }
       if (setTimeoutMock) {
         setTimeoutMock.mockRestore()
+      }
+      if (dotenvConfig) {
+        dotenvConfig.mockRestore()
       }
       jest.restoreAllMocks()
     })
