@@ -27,6 +27,7 @@
   },
   "description": "Simple authentication api with fastify",
   "dependencies": {
+    "@fastify/jwt": "6.7.0",
     "dotenv": "16.0.3",
     "fastify": "4.14.1",
     "find-root": "1.1.0",
