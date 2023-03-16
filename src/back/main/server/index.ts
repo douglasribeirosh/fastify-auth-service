@@ -7,7 +7,6 @@ import routesHandler from './routes'
 declare module 'fastify' {
   export interface FastifyInstance {
     config: Config
-    verifyJWT?: preHandlerAsyncHookHandler
   }
 }
 
