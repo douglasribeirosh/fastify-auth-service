@@ -15,7 +15,7 @@ const buildServer = (config: Config) => {
   const fastifyServer = fastify({ logger: { level: config.logLevel } })
   fastifyServer.decorate('config', config)
   fastifyServer.register(jwt, {
-    secret: 'supersecret',
+    secret: config.jwtSecret,
   })
   return { fastifyServer }
 }

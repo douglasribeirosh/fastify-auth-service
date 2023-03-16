@@ -1,1 +1,6 @@
-export type Config = { logLevel: string; port: string; host: string }
+export type Config = {
+  host: string
+  jwtSecret: string
+  logLevel: string
+  port: string
+}
