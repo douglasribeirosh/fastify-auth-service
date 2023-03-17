@@ -23,6 +23,21 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
+      test('should respond 200 for POST /auth/signup with data', async () => {
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/signup')
+          .spec()
+          // When
+          .post('/auth/signup')
+          .withJson({ name: 'Name Less', email: 'name@less.com' })
+          // Then
+          .expectStatus(204)
+          .expectBody('')
+          .toss()
+        testCase.cleanup()
+      })
     })
   })
 })

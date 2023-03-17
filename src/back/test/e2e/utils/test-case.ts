@@ -8,7 +8,7 @@ const registerHooks = () => {
 
   beforeAll(async () => {
     let serverBaseUrl = 'http://localhost:33667'
-    server = buildServer(defaultTestConfig)
+    server = await buildServer(defaultTestConfig)
     console.debug('Server starting....')
     await startServer(server)
     request.setBaseUrl(serverBaseUrl)

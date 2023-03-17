@@ -4,7 +4,7 @@ import { buildServer, startServer } from './server'
 const bootstrap = async () => {
   try {
     const config = buildConfigFromEnv()
-    const server = buildServer(config)
+    const server = await buildServer(config)
     await startServer(server)
   } catch (err) {
     console.error((err as Error).message)

@@ -7,23 +7,46 @@ const defaultConfig: Config = {
   host: '0.0.0.0',
   jwtSecret: 'OVERRIDE-ME',
   logLevel: 'info',
-  port: '33666',
+  port: 33666,
+  smtpHost: 'smtp.ethereal.email',
+  smptPort: 587,
+  smtpUseTestAccount: true,
+  smtpUser: 'stmpUser',
+  smtpPass: 'smtpPass',
+  mailerFromName: 'Test User',
+  mailerFromAddr: 'testuser@example.com',
 }
 
 const defaultTestConfig: Config = {
   host: '0.0.0.0',
   jwtSecret: 'test-secret',
   logLevel: 'debug',
-  port: '33667',
+  port: 33667,
+  smtpHost: 'smtp.ethereal.email',
+  smptPort: 587,
+  smtpUseTestAccount: true,
+  smtpUser: 'stmpUser',
+  smtpPass: 'smtpPass',
+  mailerFromName: 'Test User',
+  mailerFromAddr: 'testuser@example.com',
 }
 
 const buildConfigFromEnv = () => {
   dotenv.config({ path: join(baseDir, '.env') })
   const config: Config = {
-    port: process.env[`PORT`] ?? defaultConfig.port,
+    port: process.env[`PORT`] ? +process.env[`PORT`] : defaultConfig.port,
     host: process.env[`HOST`] ?? defaultConfig.host,
     jwtSecret: process.env[`JWT_SECRET`] ?? defaultConfig.jwtSecret,
     logLevel: process.env[`LOG_LEVEL`] ?? defaultConfig.logLevel,
+    smtpHost: process.env[`SMTP_HOST`] ?? defaultConfig.smtpHost,
+    smptPort: process.env[`SMTP_PORT`] ? +process.env[`SMTP_PORT`] : defaultConfig.smptPort,
+    smtpUseTestAccount: process.env[`SMTP_USE_TEST_ACCOUNT`]
+      ? process.env[`SMTP_USE_TEST_ACCOUNT`] === 'true'
+      : defaultConfig.smtpUseTestAccount,
+    smtpUser: process.env[`SMTP_USER`] ?? defaultConfig.smtpUser,
+    smtpPass: process.env[`SMTP_PASS`] ?? defaultConfig.smtpPass,
+    mailerFromName: process.env[`MAILER_FROM_NAME`] ?? defaultConfig.mailerFromName,
+    mailerFromAddr: process.env[`MAILER_FROM_ADDR`] ?? defaultConfig.mailerFromAddr,
   }
   return config
 }

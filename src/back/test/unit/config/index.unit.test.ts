@@ -29,6 +29,16 @@ describe('backend tests', () => {
         // Then
         expect(configFromEnv).toBeDefined()
       })
+      test('should successfully create config when some env variable are set', async () => {
+        process.env[`SMTP_USE_TEST_ACCOUNT`] = 'false'
+        process.env[`SMTP_PORT`] = '485'
+        // When
+        const configFromEnv = await config.buildConfigFromEnv()
+        // Then
+        expect(configFromEnv).toBeDefined()
+        delete process.env[`SMTP_USE_TEST_ACCOUNT`]
+        delete process.env[`SMTP_PORT`]
+      })
     })
   })
 })
