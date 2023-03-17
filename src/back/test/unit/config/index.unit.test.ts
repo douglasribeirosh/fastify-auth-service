@@ -30,6 +30,7 @@ describe('backend tests', () => {
         expect(configFromEnv).toBeDefined()
       })
       test('should successfully create config when some env variable are set', async () => {
+        process.env[`PORT`] = 33666
         process.env[`SMTP_USE_TEST_ACCOUNT`] = 'false'
         process.env[`SMTP_PORT`] = '485'
         // When
