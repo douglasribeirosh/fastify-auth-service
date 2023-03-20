@@ -3,9 +3,9 @@ import { defaultTestConfig } from '../../../main/config'
 import { buildServer, startServer, stopServer } from '../../../main/server'
 import { ServerT } from '../../../main/types/server'
 
-const registerHooks = () => {
-  let server: ServerT | null
+let server: ServerT | null
 
+const registerHooks = () => {
   beforeAll(async () => {
     let serverBaseUrl = 'http://localhost:33667'
     server = await buildServer(defaultTestConfig)
@@ -25,6 +25,8 @@ const registerHooks = () => {
   })
 }
 
+const getCurrentServer = () => server
+
 const getCurrentTestName = () => {
   const { currentTestName } = expect.getState()
   if (!currentTestName) {
@@ -33,4 +35,4 @@ const getCurrentTestName = () => {
   return currentTestName
 }
 
-export { getCurrentTestName, registerHooks }
+export { getCurrentServer, getCurrentTestName, registerHooks }

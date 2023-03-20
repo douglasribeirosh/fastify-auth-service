@@ -22,9 +22,13 @@ declare module 'fastify' {
   }
 }
 
+const redisError = (err: Error) => {
+  console.log('Redis Client Error', err)
+}
+
 const buildServer = async (config: Config) => {
   const redis = createClient({ url: config.redisUrl })
-  redis.on('error', (err) => console.log('Redis Client Error', err))
+  redis.on('error', redisError)
   await redis.connect()
   const fastifyServer = fastify({ logger: { level: config.logLevel } })
   fastifyServer.decorate('config', config)
@@ -56,4 +60,4 @@ const stopServer = async (server: ServerT) => {
   await fastifyServer.close()
 }
 
-export { buildServer, startServer, stopServer }
+export { buildServer, startServer, stopServer, redisError }
