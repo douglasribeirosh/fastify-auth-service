@@ -4,6 +4,7 @@ import { z } from 'zod'
 
 const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { name: string; email: string } }>('/', async (request, reply) => {
+    const { prisma } = fastify
     const BodyZ = z.object({
       name: z.string(),
       email: z.string().email(),
@@ -23,6 +24,15 @@ const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     })
     console.log('Message sent: %s', info.messageId)
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info))
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: 'password',
+        username: 'username',
+      },
+    })
+    console.log({ user })
     void reply.status(204)
     return
   })

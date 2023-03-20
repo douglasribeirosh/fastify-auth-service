@@ -9,7 +9,7 @@
     "build:src:check-types": "tsc --noemit -p ./src/tsconfig.json",
     "build:src:check-types:watch": "tsc --watch --noemit --preserveWatchOutput -p ./src/back/main/tsconfig.json",
     "build:src:transpile": "swc -s -d dist src/back/main src/test",
-    "cover": "jest --coverage --runInBand -c src/back/test/jest.config.js",
+    "cover": "npm run test:prisma && dotenv -e .env.test -- jest --coverage --runInBand -c src/back/test/jest.config.js",
     "cover:open": "npm run with:opener dist/coverage/all/index.html",
     "dev": "run-p build:src:check-types:watch dev:nodemon",
     "dev:nodemon": "npm run with:nodemon src/back/main/index.ts",
@@ -19,8 +19,9 @@
     "prettier:write": "prettier . --write",
     "start": "per-env",
     "start:development": "node -r @swc-node/register src/back/main",
-    "test": "jest --runInBand -c src/back/test/jest.config.js",
-    "test:back:e2e": "jest --runInBand -c src/back/test/e2e/jest.config.js",
+    "test": "npm run test:prisma && dotenv -e .env.test -- jest --runInBand -c src/back/test/jest.config.js",
+    "test:prisma": "dotenv -e .env.test -- npx prisma migrate deploy",
+    "test:back:e2e": "npm run test:prisma && dotenv -e .env.test -- jest --runInBand -c src/back/test/e2e/jest.config.js",
     "test:back:unit": "jest --runInBand -c src/back/test/unit/jest.config.js",
     "with:nodemon": "npx -y nodemon@2.0.20",
     "with:opener": "npx -y opener@1.5.2"
@@ -28,6 +29,7 @@
   "description": "Simple authentication api with fastify",
   "dependencies": {
     "@fastify/jwt": "6.7.0",
+    "@prisma/client": "4.11.0",
     "dotenv": "16.0.3",
     "fastify": "4.14.1",
     "find-root": "1.1.0",
@@ -51,6 +53,7 @@
     "@types/nodemailer": "6.4.7",
     "@typescript-eslint/eslint-plugin": "5.35.1",
     "@typescript-eslint/parser": "5.35.1",
+    "dotenv-cli": "7.1.0",
     "eslint": "8.22.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
@@ -63,6 +66,7 @@
     "pactum": "3.3.2",
     "pactum-matchers": "1.1.4",
     "prettier": "2.7.1",
+    "prisma": "4.11.0",
     "ts-node": "10.8.1",
     "typescript": "4.7.4"
   }

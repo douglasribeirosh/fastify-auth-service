@@ -1,6 +1,6 @@
 import { request } from 'pactum'
 import { defaultTestConfig } from '../../../main/config'
-import { buildServer, startServer, stopServer } from '../../../main/server'
+import { buildServer, getFastifyServer, startServer, stopServer } from '../../../main/server'
 import { ServerT } from '../../../main/types/server'
 
 const registerHooks = () => {
@@ -13,7 +13,9 @@ const registerHooks = () => {
     await startServer(server)
     request.setBaseUrl(serverBaseUrl)
   })
-  beforeEach(() => {})
+  beforeEach(async () => {
+    await server?.fastifyServer.prisma.user.deleteMany()
+  })
   afterEach(async () => {})
   afterAll(async () => {
     if (!server) {
