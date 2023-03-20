@@ -7,21 +7,22 @@ image: node:16
 
 pipelines:
   custom:
-    - parallel:
-        - step:
-            name: Build and Test
-            caches:
-              - node
-            script:
-              - npm install
-              - npm run cover
-        - step:
-            name: Code linting
-            script:
-              - npm install
-              - npm run lint
-            caches:
-              - node
+    test:
+      - parallel:
+          - step:
+              name: Build and Test
+              caches:
+                - node
+              script:
+                - npm install
+                - npm run cover
+          - step:
+              name: Code linting
+              script:
+                - npm install
+                - npm run lint
+              caches:
+                - node
   branches:
     dev-disabled:
       - step:
