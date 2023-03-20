@@ -1,8 +1,18 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import nodemailer from 'nodemailer'
+import { z } from 'zod'
 
 const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { name: string; email: string } }>('/', async (request, reply) => {
+    const BodyZ = z.object({
+      name: z.string(),
+      email: z.string().email(),
+    })
+    const validation = BodyZ.safeParse(request.body)
+    if (!validation.success) {
+      reply.status(400)
+      return { code: 400, error: validation.error }
+    }
     const { name, email } = request.body
     const randomIdentifier = Math.random()
     const mailer = fastify.mailer
@@ -14,6 +24,7 @@ const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     console.log('Message sent: %s', info.messageId)
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info))
     void reply.status(204)
+    return
   })
   return Promise.resolve()
 }

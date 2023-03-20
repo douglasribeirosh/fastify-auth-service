@@ -38,6 +38,34 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
+      test('should respond 400 for POST /auth/signup with invalid email', async () => {
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/signup')
+          .spec()
+          // When
+          .post('/auth/signup')
+          .withJson({ name: 'Name Less', email: 'name' })
+          // Then
+          .expectStatus(400)
+          .expectJson({
+            code: 400,
+            error: {
+              issues: [
+                {
+                  code: 'invalid_string',
+                  message: 'Invalid email',
+                  path: ['email'],
+                  validation: 'email',
+                },
+              ],
+              name: 'ZodError',
+            },
+          })
+          .toss()
+        testCase.cleanup()
+      })
     })
   })
 })
