@@ -31,7 +31,7 @@ describe('backend tests', () => {
           .spec()
           // When
           .post('/auth/signup')
-          .withJson({ name: 'Name Less', email: 'name@less.com' })
+          .withJson({ name: 'Name Less', email: 'name@less.com', username: 'usernameless' })
           // Then
           .expectStatus(204)
           .expectBody('')
@@ -46,7 +46,7 @@ describe('backend tests', () => {
           .spec()
           // When
           .post('/auth/signup')
-          .withJson({ name: 'Name Less', email: 'name' })
+          .withJson({ name: 'Name Less', email: 'name', username: 'usernameless' })
           // Then
           .expectStatus(400)
           .expectJson({

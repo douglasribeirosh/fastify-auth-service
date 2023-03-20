@@ -8,6 +8,8 @@ const defaultConfig: Config = {
   jwtSecret: 'OVERRIDE-ME',
   logLevel: 'info',
   port: 33666,
+  redisUrl: 'redis://localhost:6379/0',
+  redisExpireSeconds: 60 * 30,
   smtpHost: 'smtp.ethereal.email',
   smptPort: 587,
   smtpUseTestAccount: true,
@@ -22,6 +24,8 @@ const defaultTestConfig: Config = {
   jwtSecret: 'test-secret',
   logLevel: 'debug',
   port: 33667,
+  redisUrl: 'redis://localhost:6379/1',
+  redisExpireSeconds: 60,
   smtpHost: 'smtp.ethereal.email',
   smptPort: 587,
   smtpUseTestAccount: true,
@@ -38,6 +42,10 @@ const buildConfigFromEnv = () => {
     host: process.env[`HOST`] ?? defaultConfig.host,
     jwtSecret: process.env[`JWT_SECRET`] ?? defaultConfig.jwtSecret,
     logLevel: process.env[`LOG_LEVEL`] ?? defaultConfig.logLevel,
+    redisUrl: process.env[`REDIS_URL`] ?? defaultConfig.redisUrl,
+    redisExpireSeconds: process.env[`REDIS_EXPIRE_SECONDS`]
+      ? +process.env[`REDIS_EXPIRE_SECONDS`]
+      : defaultConfig.redisExpireSeconds,
     smtpHost: process.env[`SMTP_HOST`] ?? defaultConfig.smtpHost,
     smptPort: process.env[`SMTP_PORT`] ? +process.env[`SMTP_PORT`] : defaultConfig.smptPort,
     smtpUseTestAccount: process.env[`SMTP_USE_TEST_ACCOUNT`]

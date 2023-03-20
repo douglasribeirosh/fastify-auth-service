@@ -1,6 +1,6 @@
 import { request } from 'pactum'
 import { defaultTestConfig } from '../../../main/config'
-import { buildServer, getFastifyServer, startServer, stopServer } from '../../../main/server'
+import { buildServer, startServer, stopServer } from '../../../main/server'
 import { ServerT } from '../../../main/types/server'
 
 const registerHooks = () => {

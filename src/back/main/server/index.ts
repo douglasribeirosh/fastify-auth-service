@@ -6,6 +6,8 @@ import routesHandler from './routes'
 import { buildMailer } from '../mailer'
 import { Mailer } from '../types/mailer'
 import { Prisma, PrismaClient } from '@prisma/client'
+import { createClient } from 'redis'
+import { RedisClientType } from 'redis'
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -16,13 +18,18 @@ declare module 'fastify' {
       never,
       Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
     >
+    redis: RedisClientType
   }
 }
 
 const buildServer = async (config: Config) => {
+  const redis = createClient({ url: config.redisUrl })
+  redis.on('error', (err) => console.log('Redis Client Error', err))
+  await redis.connect()
   const fastifyServer = fastify({ logger: { level: config.logLevel } })
   fastifyServer.decorate('config', config)
   fastifyServer.decorate('mailer', await buildMailer(config))
+  fastifyServer.decorate('redis', redis)
   fastifyServer.register(jwt, {
     secret: config.jwtSecret,
   })
@@ -45,6 +52,7 @@ const stopServer = async (server: ServerT) => {
   const { fastifyServer } = server
   console.debug('Closing')
   await fastifyServer.prisma.$disconnect()
+  await fastifyServer.redis.disconnect()
   await fastifyServer.close()
 }
 

@@ -3,6 +3,8 @@ export type Config = {
   jwtSecret: string
   logLevel: string
   port: number
+  redisUrl: string
+  redisExpireSeconds: number
   smtpHost: string
   smptPort: number
   smtpUseTestAccount: boolean
