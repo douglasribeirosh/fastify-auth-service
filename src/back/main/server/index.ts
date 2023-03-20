@@ -30,7 +30,19 @@ const buildServer = async (config: Config) => {
   const redis = createClient({ url: config.redisUrl })
   redis.on('error', redisError)
   await redis.connect()
-  const fastifyServer = fastify({ logger: { level: config.logLevel } })
+  const fastifyServer = fastify({
+    logger: {
+      level: config.logLevel,
+      transport: {
+        options: {
+          ignore: 'pid,hostname,reqId,responseTime,req,res',
+          translateTime: true,
+        },
+        target: 'pino-pretty',
+      },
+    },
+  })
+
   fastifyServer.decorate('config', config)
   fastifyServer.decorate('mailer', await buildMailer(config))
   fastifyServer.decorate('redis', redis)
@@ -44,10 +56,20 @@ const startServer = async (server: ServerT) => {
   const { fastifyServer } = server
   const prisma = new PrismaClient()
   fastifyServer.decorate('prisma', prisma)
-  const { config } = fastifyServer
+  const { config, log } = fastifyServer
   console.log({ config })
   fastifyServer.register(routesHandler)
   const { host, port } = config
+  fastifyServer.ready((err: Error) => {
+    if (err) {
+      log.error(err)
+      return
+    }
+    log.trace('*** Fastify registered plugins:')
+    log.trace(fastifyServer.printPlugins())
+    log.trace('*** Registered routes:')
+    log.trace(fastifyServer.printRoutes())
+  })
   await fastifyServer.listen({ host, port })
   console.log(`Listening on ${host}:${port}`)
 }
