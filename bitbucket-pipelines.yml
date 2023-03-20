@@ -6,7 +6,7 @@
 image: node:16
 
 pipelines:
-  default:
+  custom:
     - parallel:
         - step:
             name: Build and Test
