@@ -1,5 +1,4 @@
 import { User } from '.prisma/client'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime'
 import { randomUUID } from 'crypto'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import nodemailer from 'nodemailer'

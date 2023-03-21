@@ -41,7 +41,7 @@ const buildServer = async (config: Config) => {
       },
     },
   })
-  redis.on('error', onRedisError(fastifyServer))
+  redis.on('error', onRedisError(fastifyServer.log))
   fastifyServer.decorate('config', config)
   fastifyServer.decorate('mailer', await buildMailer(config))
   fastifyServer.decorate('redis', redis)
