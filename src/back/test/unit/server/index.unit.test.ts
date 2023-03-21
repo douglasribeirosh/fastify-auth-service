@@ -1,5 +1,4 @@
 import { FastifyBaseLogger } from 'fastify'
-import { Config } from '../../../main/types/config'
 import { FastifyT } from '../../../main/types/server'
 
 import { requireFromBaseDir } from '../../utils/jest-helper'

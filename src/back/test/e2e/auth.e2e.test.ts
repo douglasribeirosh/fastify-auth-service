@@ -94,7 +94,7 @@ describe('backend tests', () => {
           .expectBody('')
           .toss()
         await testCase
-          .step('POST /auth/signup')
+          .step('POST /auth/signup second time')
           .spec()
           // When
           .post('/auth/signup')

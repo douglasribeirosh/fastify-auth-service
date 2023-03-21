@@ -1,8 +1,8 @@
-import { User } from '.prisma/client'
 import { randomUUID } from 'crypto'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import nodemailer from 'nodemailer'
 import { z } from 'zod'
+import { handlePrismaUserDuplicateError } from '../../errors/errorHandlers'
 
 const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { name: string; email: string; username: string } }>(
@@ -23,23 +23,17 @@ const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       const randomCode = Math.trunc(Math.random() * 1000000).toString()
       const randomKey = randomUUID()
       const mailer = fastify.mailer
-      let user: User
-      try {
-        user = await prisma.user.create({
+      const user = await prisma.user
+        .create({
           data: {
             name,
             email,
             username,
           },
         })
-      } catch (err) {
-        const error = err as { code: string }
-        if (error.code === 'P2002') {
-          reply.status(400)
-          return { code: 400, error: 'Email or username already signed up' }
-        }
-        throw err
-      }
+        .catch((err) => {
+          throw handlePrismaUserDuplicateError(err, reply)
+        })
       log.debug({ user })
       const info = await mailer.sendMail({
         to: `"${name}" <${email}>`,
