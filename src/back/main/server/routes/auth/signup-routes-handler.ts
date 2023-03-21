@@ -34,7 +34,7 @@ const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
           },
         })
       } catch (err) {
-        const error = err as PrismaClientKnownRequestError
+        const error = err as { code: string }
         if (error.code === 'P2002') {
           reply.status(400)
           return { code: 400, error: 'Email or username already signed up' }

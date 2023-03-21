@@ -33,7 +33,54 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 204 for POST /auth/signup with data', async () => {
+      test('should respond 400 for POST /auth/token with invalid data', async () => {
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/token with invalid data')
+          .spec()
+          // When
+          .post('/auth/token')
+          .withJson({ username: 'login' })
+          // Then
+          .expectStatus(400)
+          .expectJson({
+            code: 400,
+            error: {
+              issues: [
+                {
+                  code: 'invalid_type',
+                  expected: 'string',
+                  message: 'Required',
+                  path: ['password'],
+                  received: 'undefined',
+                },
+              ],
+              name: 'ZodError',
+            },
+          })
+          .toss()
+        testCase.cleanup()
+      })
+      test('should respond 401 for POST /auth/token with unauthorized data', async () => {
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/token with invalid data')
+          .spec()
+          // When
+          .post('/auth/token')
+          .withJson({ username: 'login', password: 'P@ssw0rd' })
+          // Then
+          .expectStatus(401)
+          .expectJson({
+            code: 401,
+            error: 'Unauthorized',
+          })
+          .toss()
+        testCase.cleanup()
+      })
+      test('should respond 204 for POST /auth/signup with data but Error second time', async () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
@@ -45,6 +92,19 @@ describe('backend tests', () => {
           // Then
           .expectStatus(204)
           .expectBody('')
+          .toss()
+        await testCase
+          .step('POST /auth/signup')
+          .spec()
+          // When
+          .post('/auth/signup')
+          .withJson({ name: 'Name Less', email: 'name@less.com', username: 'usernameless' })
+          // Then
+          .expectStatus(400)
+          .expectJson({
+            code: 400,
+            error: 'Email or username already signed up',
+          })
           .toss()
         testCase.cleanup()
       })
@@ -102,6 +162,36 @@ describe('backend tests', () => {
           // Then
           .expectStatus(204)
           .expectBody('')
+          .toss()
+        testCase.cleanup()
+        redis.del(randomKey)
+      })
+      test('should respond Error for POST /auth/signup/confirm/:key with not matching confirmPassword', async () => {
+        const { prisma, redis, config } = getCurrentServer()?.fastifyServer
+        const user = await prisma.user.create({
+          data: {
+            name: 'name',
+            email: 'some@email.com',
+            username: 'username',
+          },
+        })
+        const randomCode = Math.trunc(Math.random() * 1000000).toString()
+        const randomKey = randomUUID()
+        const redisKey = `${randomKey}#${randomCode}`
+        const redisValue = `${user.id}`
+        redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/signup/confirm/:key')
+          .spec()
+          // When
+          .post('/auth/signup/confirm/{key}')
+          .withPathParams('key', randomKey)
+          .withJson({ code: randomCode, password: 'password', confirmPassword: 'passwor' })
+          // Then
+          .expectStatus(400)
+          .expectBody({ code: 400, error: 'Error when confirming password or code' })
           .toss()
         testCase.cleanup()
         redis.del(randomKey)
