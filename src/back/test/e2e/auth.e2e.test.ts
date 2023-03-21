@@ -8,6 +8,15 @@ describe('backend tests', () => {
     describe('/auth', () => {
       registerHooks()
       test('should respond token for POST /auth/token', async () => {
+        const { prisma } = getCurrentServer()?.fastifyServer
+        await prisma.user.create({
+          data: {
+            name: 'name',
+            email: 'some@email.com',
+            username: 'login',
+            password: 'P@ssw0rd',
+          },
+        })
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
@@ -15,7 +24,7 @@ describe('backend tests', () => {
           .spec()
           // When
           .post('/auth/token')
-          .withJson({ login: 'login', password: 'P@ssw0rd' })
+          .withJson({ username: 'login', password: 'P@ssw0rd' })
           // Then
           .expectStatus(200)
           .expectJsonMatch({
@@ -73,7 +82,6 @@ describe('backend tests', () => {
           data: {
             name: 'name',
             email: 'some@email.com',
-            password: 'password',
             username: 'username',
           },
         })
@@ -90,7 +98,7 @@ describe('backend tests', () => {
           // When
           .post('/auth/signup/confirm/{key}')
           .withPathParams('key', randomKey)
-          .withJson({ code: randomCode })
+          .withJson({ code: randomCode, password: 'password', confirmPassword: 'password' })
           // Then
           .expectStatus(204)
           .expectBody('')
@@ -102,6 +110,35 @@ describe('backend tests', () => {
         const randomKey = randomUUID()
         //Given
         const testCase = e2e(getCurrentTestName())
+        const expectedError = {
+          code: 400,
+          error: {
+            issues: [
+              {
+                code: 'invalid_type',
+                expected: 'string',
+                message: 'Required',
+                path: ['code'],
+                received: 'undefined',
+              },
+              {
+                code: 'invalid_type',
+                expected: 'string',
+                message: 'Required',
+                path: ['password'],
+                received: 'undefined',
+              },
+              {
+                code: 'invalid_type',
+                expected: 'string',
+                message: 'Required',
+                path: ['confirmPassword'],
+                received: 'undefined',
+              },
+            ],
+            name: 'ZodError',
+          },
+        }
         await testCase
           .step('POST /auth/signup/confirm/:key')
           .spec()
@@ -111,21 +148,7 @@ describe('backend tests', () => {
           .withJson({})
           // Then
           .expectStatus(400)
-          .expectJson({
-            code: 400,
-            error: {
-              issues: [
-                {
-                  code: 'invalid_type',
-                  expected: 'string',
-                  message: 'Required',
-                  path: ['code'],
-                  received: 'undefined',
-                },
-              ],
-              name: 'ZodError',
-            },
-          })
+          .expectJson(expectedError)
           .toss()
         testCase.cleanup()
       })

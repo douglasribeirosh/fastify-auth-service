@@ -1,6 +1,6 @@
 import { e2e } from 'pactum'
-import { int, string } from 'pactum-matchers'
-import { getCurrentTestName, registerHooks } from '../utils/test-case'
+import { int, string, uuid } from 'pactum-matchers'
+import { getCurrentServer, getCurrentTestName, registerHooks } from '../utils/test-case'
 
 describe('backend tests', () => {
   describe('backend server /api/users e2e tests', () => {
@@ -26,12 +26,22 @@ describe('backend tests', () => {
         testCase.cleanup()
       })
       test('should respond user for GET /api/users/me with Authorization', async () => {
+        const { prisma } = getCurrentServer()?.fastifyServer
+        await prisma.user.create({
+          data: {
+            name: 'name',
+            email: 'some@email.com',
+            username: 'login',
+            password: 'P@ssw0rd',
+          },
+        })
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
           .step('POST /auth/token')
           .spec()
           .post('/auth/token')
+          .withJson({ username: 'login', password: 'P@ssw0rd' })
           .expectStatus(200)
           .expectJsonMatch({
             token: string(),
@@ -48,7 +58,8 @@ describe('backend tests', () => {
           .expectStatus(200)
           .expectJsonMatch({
             iat: int(),
-            login: 'login',
+            id: uuid(),
+            username: 'login',
           })
           .toss()
         testCase.cleanup()
