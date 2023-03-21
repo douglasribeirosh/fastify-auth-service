@@ -1,6 +1,6 @@
-import fastify from 'fastify'
+import fastify, { FastifyBaseLogger } from 'fastify'
 import { Config } from '../types/config'
-import { ServerT } from '../types/server'
+import { FastifyT, ServerT } from '../types/server'
 import jwt from '@fastify/jwt'
 import routesHandler from './routes'
 import { buildMailer } from '../mailer'
@@ -22,13 +22,12 @@ declare module 'fastify' {
   }
 }
 
-const redisError = (err: Error) => {
-  console.log('Redis Client Error', err)
+const onRedisError = (log: FastifyBaseLogger) => (err: Error) => {
+  log.error('Redis Client Error', err)
 }
 
 const buildServer = async (config: Config) => {
   const redis = createClient({ url: config.redisUrl })
-  redis.on('error', redisError)
   await redis.connect()
   const fastifyServer = fastify({
     logger: {
@@ -42,7 +41,7 @@ const buildServer = async (config: Config) => {
       },
     },
   })
-
+  redis.on('error', onRedisError(fastifyServer))
   fastifyServer.decorate('config', config)
   fastifyServer.decorate('mailer', await buildMailer(config))
   fastifyServer.decorate('redis', redis)
@@ -52,24 +51,27 @@ const buildServer = async (config: Config) => {
   return { fastifyServer }
 }
 
+const onFastifyError = (fastifyServer: FastifyT) => (err: Error) => {
+  const { log } = fastifyServer
+  if (err) {
+    log.error(err)
+    return
+  }
+  log.trace('*** Fastify registered plugins:')
+  log.trace(fastifyServer.printPlugins())
+  log.trace('*** Registered routes:')
+  log.trace(fastifyServer.printRoutes())
+}
+
 const startServer = async (server: ServerT) => {
   const { fastifyServer } = server
   const prisma = new PrismaClient()
   fastifyServer.decorate('prisma', prisma)
-  const { config, log } = fastifyServer
+  const { config } = fastifyServer
   console.log({ config })
   fastifyServer.register(routesHandler)
   const { host, port } = config
-  fastifyServer.ready((err: Error) => {
-    if (err) {
-      log.error(err)
-      return
-    }
-    log.trace('*** Fastify registered plugins:')
-    log.trace(fastifyServer.printPlugins())
-    log.trace('*** Registered routes:')
-    log.trace(fastifyServer.printRoutes())
-  })
+  fastifyServer.ready(onFastifyError(fastifyServer))
   await fastifyServer.listen({ host, port })
   console.log(`Listening on ${host}:${port}`)
 }
@@ -82,4 +84,4 @@ const stopServer = async (server: ServerT) => {
   await fastifyServer.close()
 }
 
-export { buildServer, startServer, stopServer, redisError }
+export { buildServer, startServer, stopServer, onRedisError, onFastifyError }
