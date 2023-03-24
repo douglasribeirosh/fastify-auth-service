@@ -1,4 +1,4 @@
-import fastify, { FastifyBaseLogger } from 'fastify'
+import fastify, { FastifyBaseLogger, FastifyPluginAsync, onRequestHookHandler } from 'fastify'
 import { Config } from '../types/config'
 import { FastifyT, ServerT } from '../types/server'
 import jwt from '@fastify/jwt'
@@ -8,6 +8,7 @@ import { Mailer } from '../types/mailer'
 import { Prisma, PrismaClient } from '@prisma/client'
 import { createClient } from 'redis'
 import { RedisClientType } from 'redis'
+import { authenticatePlugin } from '../fastify-plugins/authenticate'
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -19,6 +20,13 @@ declare module 'fastify' {
       Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
     >
     redis: RedisClientType
+    authenticate: onRequestHookHandler
+  }
+}
+
+declare module '@fastify/jwt' {
+  export interface FastifyJWT {
+    user: { id: string; username: string }
   }
 }
 
@@ -48,6 +56,7 @@ const buildServer = async (config: Config) => {
   fastifyServer.register(jwt, {
     secret: config.jwtSecret,
   })
+  fastifyServer.register(authenticatePlugin)
   return { fastifyServer }
 }
 

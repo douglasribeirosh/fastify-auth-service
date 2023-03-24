@@ -12,7 +12,8 @@ const logoutRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       return { code: 400, error: validation.error }
     }
     const { authorization } = request.headers
-    const user = (await request.jwtVerify()) as { id: string }
+    await request.jwtVerify()
+    const { user } = request
     log.debug({ user })
     const redisKey = `${REDIS_LOGOUT_KEY_PREFIX}${user.id}#${authorization}`
     const redisValue = `${authorization}`
