@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { handlePrismaUserDuplicateError } from '../../errors/errorHandlers'
 import { hash } from 'bcryptjs'
 
-const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
+const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { name: string; email: string; username: string } }>(
     '/',
     async (request, reply) => {
@@ -39,7 +39,7 @@ const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       const info = await mailer.sendMail({
         to: `"${name}" <${email}>`,
         subject: `Hello ${name} ✔`,
-        text: `POST http://localhost:${config.port}/auth/signup/confirm/${randomKey} using confirmation code ${randomCode}`,
+        text: `POST http://localhost:${config.port}/auth/register/confirm/${randomKey} using confirmation code ${randomCode}`,
       })
       log.debug('Message sent: %s', info.messageId)
       log.debug('Preview URL: %s', nodemailer.getTestMessageUrl(info))
@@ -84,4 +84,4 @@ const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   return Promise.resolve()
 }
 
-export default signupRoutesHandler
+export default registerRoutesHandler

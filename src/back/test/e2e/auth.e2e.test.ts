@@ -8,7 +8,7 @@ describe('backend tests', () => {
   describe('backend server /auth e2e tests', () => {
     describe('/auth', () => {
       registerHooks()
-      test('should respond token for POST /auth/token', async () => {
+      test('should respond token for POST /auth/login', async () => {
         const { prisma } = getCurrentServer()?.fastifyServer
         const passwordHash = await hash('P@ssw0rd', 10)
         await prisma.user.create({
@@ -22,10 +22,10 @@ describe('backend tests', () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/token')
+          .step('POST /auth/login')
           .spec()
           // When
-          .post('/auth/token')
+          .post('/auth/login')
           .withJson({ username: 'login', password: 'P@ssw0rd' })
           // Then
           .expectStatus(200)
@@ -35,14 +35,14 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 400 for POST /auth/token with invalid data', async () => {
+      test('should respond 400 for POST /auth/login with invalid data', async () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/token with invalid data')
+          .step('POST /auth/login with invalid data')
           .spec()
           // When
-          .post('/auth/token')
+          .post('/auth/login')
           .withJson({ username: 'login' })
           // Then
           .expectStatus(400)
@@ -64,14 +64,14 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 401 for POST /auth/token with unauthorized data', async () => {
+      test('should respond 401 for POST /auth/login with unauthorized data', async () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/token with invalid data')
+          .step('POST /auth/login with invalid data')
           .spec()
           // When
-          .post('/auth/token')
+          .post('/auth/login')
           .withJson({ username: 'login', password: 'P@ssw0rd' })
           // Then
           .expectStatus(401)
@@ -82,24 +82,24 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 204 for POST /auth/signup with data but Error second time', async () => {
+      test('should respond 204 for POST /auth/register with data but Error second time', async () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/signup')
+          .step('POST /auth/register')
           .spec()
           // When
-          .post('/auth/signup')
+          .post('/auth/register')
           .withJson({ name: 'Name Less', email: 'name@less.com', username: 'usernameless' })
           // Then
           .expectStatus(204)
           .expectBody('')
           .toss()
         await testCase
-          .step('POST /auth/signup second time')
+          .step('POST /auth/register second time')
           .spec()
           // When
-          .post('/auth/signup')
+          .post('/auth/register')
           .withJson({ name: 'Name Less', email: 'name@less.com', username: 'usernameless' })
           // Then
           .expectStatus(400)
@@ -110,14 +110,14 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 400 for POST /auth/signup with invalid email', async () => {
+      test('should respond 400 for POST /auth/register with invalid email', async () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/signup')
+          .step('POST /auth/register')
           .spec()
           // When
-          .post('/auth/signup')
+          .post('/auth/register')
           .withJson({ name: 'Name Less', email: 'name', username: 'usernameless' })
           // Then
           .expectStatus(400)
@@ -138,7 +138,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 204 for POST /auth/signup/confirm/:key with data', async () => {
+      test('should respond 204 for POST /auth/register/confirm/:key with data', async () => {
         const { prisma, redis, config } = getCurrentServer()?.fastifyServer
         const user = await prisma.user.create({
           data: {
@@ -155,10 +155,10 @@ describe('backend tests', () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/signup/confirm/:key')
+          .step('POST /auth/register/confirm/:key')
           .spec()
           // When
-          .post('/auth/signup/confirm/{key}')
+          .post('/auth/register/confirm/{key}')
           .withPathParams('key', randomKey)
           .withJson({ code: randomCode, password: 'password', confirmPassword: 'password' })
           // Then
@@ -168,7 +168,7 @@ describe('backend tests', () => {
         testCase.cleanup()
         redis.del(randomKey)
       })
-      test('should respond Error for POST /auth/signup/confirm/:key with not matching confirmPassword', async () => {
+      test('should respond Error for POST /auth/register/confirm/:key with not matching confirmPassword', async () => {
         const { prisma, redis, config } = getCurrentServer()?.fastifyServer
         const user = await prisma.user.create({
           data: {
@@ -185,10 +185,10 @@ describe('backend tests', () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/signup/confirm/:key')
+          .step('POST /auth/register/confirm/:key')
           .spec()
           // When
-          .post('/auth/signup/confirm/{key}')
+          .post('/auth/register/confirm/{key}')
           .withPathParams('key', randomKey)
           .withJson({ code: randomCode, password: 'password', confirmPassword: 'passwor' })
           // Then
@@ -198,7 +198,7 @@ describe('backend tests', () => {
         testCase.cleanup()
         redis.del(randomKey)
       })
-      test('should respond 400 for POST /auth/signup/confirm/:key with invalid payload', async () => {
+      test('should respond 400 for POST /auth/register/confirm/:key with invalid payload', async () => {
         const randomKey = randomUUID()
         //Given
         const testCase = e2e(getCurrentTestName())
@@ -232,10 +232,10 @@ describe('backend tests', () => {
           },
         }
         await testCase
-          .step('POST /auth/signup/confirm/:key')
+          .step('POST /auth/register/confirm/:key')
           .spec()
           // When
-          .post('/auth/signup/confirm/{key}')
+          .post('/auth/register/confirm/{key}')
           .withPathParams('key', randomKey)
           .withJson({})
           // Then

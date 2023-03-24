@@ -40,9 +40,9 @@ describe('backend tests', () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/token')
+          .step('POST /auth/login')
           .spec()
-          .post('/auth/token')
+          .post('/auth/login')
           .withJson({ username: 'login', password: 'P@ssw0rd' })
           .expectStatus(200)
           .expectJsonMatch({

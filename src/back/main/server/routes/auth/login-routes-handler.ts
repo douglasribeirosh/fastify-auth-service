@@ -2,7 +2,7 @@ import bcryptjs, { compare } from 'bcryptjs'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 
-const tokenRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
+const loginRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { username: string; password: string } }>('/', async (request, reply) => {
     const { log, prisma } = fastify
     const BodyZ = z.object({
@@ -32,4 +32,4 @@ const tokenRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   return Promise.resolve()
 }
 
-export default tokenRoutesHandler
+export default loginRoutesHandler
