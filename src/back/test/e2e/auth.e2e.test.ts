@@ -2,6 +2,7 @@ import { hash } from 'bcryptjs'
 import { randomUUID } from 'crypto'
 import { e2e } from 'pactum'
 import { string } from 'pactum-matchers'
+import { REDIS_REGISTER_KEY_PREFIX } from '../../main/common/constants'
 import { getCurrentServer, getCurrentTestName, registerHooks } from './utils/test-case'
 
 describe('backend tests', () => {
@@ -149,7 +150,7 @@ describe('backend tests', () => {
         })
         const randomCode = Math.trunc(Math.random() * 1000000).toString()
         const randomKey = randomUUID()
-        const redisKey = `${randomKey}#${randomCode}`
+        const redisKey = `${REDIS_REGISTER_KEY_PREFIX}${randomKey}#${randomCode}`
         const redisValue = `${user.id}`
         redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
         //Given
@@ -179,7 +180,7 @@ describe('backend tests', () => {
         })
         const randomCode = Math.trunc(Math.random() * 1000000).toString()
         const randomKey = randomUUID()
-        const redisKey = `${randomKey}#${randomCode}`
+        const redisKey = `${REDIS_REGISTER_KEY_PREFIX}${randomKey}#${randomCode}`
         const redisValue = `${user.id}`
         redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
         //Given

@@ -1,0 +1,2 @@
+export const REDIS_REGISTER_KEY_PREFIX = 'REGISTER:'
+export const REDIS_LOGOUT_KEY_PREFIX = 'LOGOUT:'

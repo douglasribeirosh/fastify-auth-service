@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer'
 import { z } from 'zod'
 import { handlePrismaUserDuplicateError } from '../../errors/errorHandlers'
 import { hash } from 'bcryptjs'
+import { REDIS_REGISTER_KEY_PREFIX } from '../../../common/constants'
 
 const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { name: string; email: string; username: string } }>(
@@ -44,7 +45,7 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
       log.debug('Message sent: %s', info.messageId)
       log.debug('Preview URL: %s', nodemailer.getTestMessageUrl(info))
       const { redis } = fastify
-      const redisKey = `${randomKey}#${randomCode}`
+      const redisKey = `${REDIS_REGISTER_KEY_PREFIX}${randomKey}#${randomCode}`
       const redisValue = `${user.id}`
       redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
       void reply.status(204)
@@ -70,7 +71,7 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
     const { code } = request.body
     const { key } = request.params
     const { redis } = fastify
-    const userId = await redis.get(`${key}#${code}`)
+    const userId = await redis.get(`${REDIS_REGISTER_KEY_PREFIX}${key}#${code}`)
     log.debug({ key, code, userId })
     if (password !== confirmPassword || !userId) {
       reply.status(400)

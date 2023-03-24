@@ -1,4 +1,4 @@
-import bcryptjs, { compare } from 'bcryptjs'
+import { compare } from 'bcryptjs'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 
@@ -21,7 +21,7 @@ const loginRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       },
     })
     log.debug({ user })
-    if (!user || !(await compare(password, user.passwordHash))) {
+    if (!user || (user.passwordHash && !(await compare(password, user.passwordHash)))) {
       reply.status(401)
       log.debug('Unauthorized', request.body)
       return { code: 401, error: 'Unauthorized' }
