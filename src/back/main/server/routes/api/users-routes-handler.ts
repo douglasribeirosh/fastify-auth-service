@@ -12,7 +12,7 @@ const usersRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     const redisValue = await redis.get(`${REDIS_LOGOUT_KEY_PREFIX}${user.id}#${authorization}`)
     if (redisValue) {
       reply.status(401)
-      return { code: 400, error: 'Unauthorized' }
+      return { code: 401, error: 'Unauthorized' }
     }
     return request.user
   })

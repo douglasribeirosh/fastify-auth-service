@@ -9,7 +9,7 @@ describe('backend tests', () => {
   describe('backend server /auth e2e tests', () => {
     describe('/auth', () => {
       registerHooks()
-      test('should respond token for POST /auth/login', async () => {
+      test('should respond token for POST /auth/login and be able to POST /auth/logout with token', async () => {
         const { prisma } = getCurrentServer()?.fastifyServer
         const passwordHash = await hash('P@ssw0rd', 10)
         await prisma.user.create({
@@ -33,6 +33,27 @@ describe('backend tests', () => {
           .expectJsonMatch({
             token: string(),
           })
+          .stores('Token', 'token')
+          .toss()
+        await testCase
+          .step('POST /auth/logout')
+          .spec()
+          // When
+          .post('/auth/logout')
+          .withHeaders('Authorization', `Bearer $S{Token}`)
+          .withJson({})
+          // Then
+          .expectStatus(400)
+          .toss()
+        await testCase
+          .step('POST /auth/logout')
+          .spec()
+          // When
+          .post('/auth/logout')
+          .withHeaders('Authorization', `Bearer $S{Token}`)
+          // Then
+          .expectStatus(204)
+          .expectBody('')
           .toss()
         testCase.cleanup()
       })
@@ -79,6 +100,35 @@ describe('backend tests', () => {
           .expectJson({
             code: 401,
             error: 'Unauthorized',
+          })
+          .toss()
+        testCase.cleanup()
+      })
+      test('should respond 400 for POST /auth/login with invalid data', async () => {
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/login with invalid data')
+          .spec()
+          // When
+          .post('/auth/login')
+          .withJson({ username: 'login' })
+          // Then
+          .expectStatus(400)
+          .expectJson({
+            code: 400,
+            error: {
+              issues: [
+                {
+                  code: 'invalid_type',
+                  expected: 'string',
+                  message: 'Required',
+                  path: ['password'],
+                  received: 'undefined',
+                },
+              ],
+              name: 'ZodError',
+            },
           })
           .toss()
         testCase.cleanup()

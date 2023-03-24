@@ -26,7 +26,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond user for GET /api/users/me with Authorization', async () => {
+      test('should respond user for GET /api/users/me with Authorization and Unauthorized after POST /auth/logout', async () => {
         const { prisma } = getCurrentServer()?.fastifyServer
         const passwordHash = await hash('P@ssw0rd', 10)
         await prisma.user.create({
@@ -62,6 +62,29 @@ describe('backend tests', () => {
             iat: int(),
             id: uuid(),
             username: 'login',
+          })
+          .toss()
+        await testCase
+          .step('POST /auth/logout')
+          .spec()
+          // When
+          .post('/auth/logout')
+          .withHeaders('Authorization', `Bearer $S{Token}`)
+          // Then
+          .expectStatus(204)
+          .expectBody('')
+          .toss()
+        await testCase
+          .step('GET /api/users/me')
+          .spec()
+          // When
+          .get('/api/users/me')
+          .withHeaders('Authorization', `Bearer $S{Token}`)
+          // Then
+          .expectStatus(401)
+          .expectJson({
+            code: 401,
+            error: 'Unauthorized',
           })
           .toss()
         testCase.cleanup()
