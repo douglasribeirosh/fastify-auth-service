@@ -1,3 +1,4 @@
+import bcryptjs, { compare } from 'bcryptjs'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 
@@ -16,14 +17,11 @@ const tokenRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     const { username, password } = request.body
     const user = await prisma.user.findFirst({
       where: {
-        AND: {
-          username: { equals: username },
-          password: { equals: password },
-        },
+        username,
       },
     })
     log.debug({ user })
-    if (!user) {
+    if (!user || !(await compare(password, user.passwordHash))) {
       reply.status(401)
       log.debug('Unauthorized', request.body)
       return { code: 401, error: 'Unauthorized' }

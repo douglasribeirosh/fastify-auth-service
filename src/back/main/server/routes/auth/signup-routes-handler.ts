@@ -3,6 +3,7 @@ import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import nodemailer from 'nodemailer'
 import { z } from 'zod'
 import { handlePrismaUserDuplicateError } from '../../errors/errorHandlers'
+import { hash } from 'bcryptjs'
 
 const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { name: string; email: string; username: string } }>(
@@ -75,7 +76,8 @@ const signupRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       reply.status(400)
       return { code: 400, error: 'Error when confirming password or code' }
     }
-    await prisma.user.update({ where: { id: userId }, data: { password } })
+    const passwordHash = await hash(password, 10)
+    await prisma.user.update({ where: { id: userId }, data: { passwordHash } })
     void reply.status(204)
     return
   })

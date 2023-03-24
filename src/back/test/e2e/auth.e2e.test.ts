@@ -1,3 +1,4 @@
+import { hash } from 'bcryptjs'
 import { randomUUID } from 'crypto'
 import { e2e } from 'pactum'
 import { string } from 'pactum-matchers'
@@ -9,12 +10,13 @@ describe('backend tests', () => {
       registerHooks()
       test('should respond token for POST /auth/token', async () => {
         const { prisma } = getCurrentServer()?.fastifyServer
+        const passwordHash = await hash('P@ssw0rd', 10)
         await prisma.user.create({
           data: {
             name: 'name',
             email: 'some@email.com',
             username: 'login',
-            password: 'P@ssw0rd',
+            passwordHash,
           },
         })
         //Given
