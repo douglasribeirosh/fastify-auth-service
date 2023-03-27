@@ -1,5 +1,6 @@
 import { hash } from 'bcryptjs'
 import { request } from 'pactum'
+import E2E from 'pactum/src/models/E2E'
 import { defaultTestConfig } from '../../../main/config'
 import { buildServer, startServer, stopServer } from '../../../main/server'
 import { ServerT } from '../../../main/types/server'
@@ -15,6 +16,7 @@ const registerHooks = () => {
     request.setBaseUrl(serverBaseUrl)
   })
   beforeEach(async () => {
+    await server?.fastifyServer.prisma.domain.deleteMany()
     await server?.fastifyServer.prisma.user.deleteMany()
   })
   afterEach(async () => {})
@@ -49,4 +51,15 @@ const insertUser = async (withPassword = false) => {
   })
 }
 
-export { getCurrentServer, getCurrentTestName, registerHooks, insertUser }
+const login = async (testCase: E2E) => {
+  await testCase
+    .step('POST /auth/login')
+    .spec()
+    .post('/auth/login')
+    .withJson({ username: 'login', password: 'P@ssw0rd' })
+    .expectStatus(200)
+    .stores('Token', 'token')
+    .toss()
+}
+
+export { getCurrentServer, getCurrentTestName, registerHooks, insertUser, login }

@@ -1,7 +1,6 @@
-import { hash } from 'bcryptjs'
 import { e2e } from 'pactum'
 import { int, string, uuid } from 'pactum-matchers'
-import { getCurrentServer, getCurrentTestName, insertUser, registerHooks } from '../utils/test-case'
+import { getCurrentTestName, insertUser, registerHooks } from '../utils/test-case'
 
 describe('backend tests', () => {
   describe('backend server /api/users e2e tests', () => {
