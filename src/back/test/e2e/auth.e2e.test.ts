@@ -2,25 +2,16 @@ import { hash } from 'bcryptjs'
 import { randomUUID } from 'crypto'
 import { e2e } from 'pactum'
 import { string } from 'pactum-matchers'
-import { REDIS_REGISTER_KEY_PREFIX } from '../../main/common/constants'
-import { getCurrentServer, getCurrentTestName, registerHooks } from './utils/test-case'
+import { REDIS_CONFIRM_KEY_PREFIX } from '../../main/common/constants'
+import { getCurrentServer, getCurrentTestName, insertUser, registerHooks } from './utils/test-case'
 
 describe('backend tests', () => {
   describe('backend server /auth e2e tests', () => {
     describe('/auth', () => {
       registerHooks()
       test('should respond token for POST /auth/login and be able to POST /auth/logout with token', async () => {
-        const { prisma } = getCurrentServer()?.fastifyServer
-        const passwordHash = await hash('P@ssw0rd', 10)
-        await prisma.user.create({
-          data: {
-            name: 'name',
-            email: 'some@email.com',
-            username: 'login',
-            passwordHash,
-          },
-        })
         //Given
+        await insertUser(true)
         const testCase = e2e(getCurrentTestName())
         await testCase
           .step('POST /auth/login')
@@ -189,27 +180,84 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 204 for POST /auth/register/confirm/:key with data', async () => {
-        const { prisma, redis, config } = getCurrentServer()?.fastifyServer
-        const user = await prisma.user.create({
-          data: {
-            name: 'name',
-            email: 'some@email.com',
-            username: 'username',
-          },
-        })
+      test('should respond 204 for POST /auth/reset-pass with data', async () => {
+        //Given
+        await insertUser()
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/reset-pass')
+          .spec()
+          // When
+          .post('/auth/reset-pass')
+          .withJson({ email: 'name@less.com' })
+          // Then
+          .expectStatus(204)
+          .expectBody('')
+          .toss()
+        testCase.cleanup()
+      })
+      test('should respond 400 for POST /auth/reset-pass with invalid email', async () => {
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/reset-pass')
+          .spec()
+          // When
+          .post('/auth/reset-pass')
+          .withJson({ email: 'name' })
+          // Then
+          .expectStatus(400)
+          .expectJson({
+            code: 400,
+            error: {
+              issues: [
+                {
+                  code: 'invalid_string',
+                  message: 'Invalid email',
+                  path: ['email'],
+                  validation: 'email',
+                },
+              ],
+              name: 'ZodError',
+            },
+          })
+          .toss()
+        testCase.cleanup()
+      })
+      test('should respond 404 for POST /auth/reset-pass with not existing email', async () => {
+        //Given
+        await insertUser()
+        const testCase = e2e(getCurrentTestName())
+        await testCase
+          .step('POST /auth/reset-pass')
+          .spec()
+          // When
+          .post('/auth/reset-pass')
+          .withJson({ email: 'anothername@less.com' })
+          // Then
+          .expectStatus(404)
+          .expectJson({
+            code: 404,
+            error: 'User not found',
+          })
+          .toss()
+        testCase.cleanup()
+      })
+      test('should respond 204 for POST /auth/confirm/:key with data', async () => {
+        const { redis, config } = getCurrentServer()?.fastifyServer
+        const user = await insertUser(false)
         const randomCode = Math.trunc(Math.random() * 1000000).toString()
         const randomKey = randomUUID()
-        const redisKey = `${REDIS_REGISTER_KEY_PREFIX}${randomKey}#${randomCode}`
+        const redisKey = `${REDIS_CONFIRM_KEY_PREFIX}${randomKey}#${randomCode}`
         const redisValue = `${user.id}`
         redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/register/confirm/:key')
+          .step('POST /auth/confirm/:key')
           .spec()
           // When
-          .post('/auth/register/confirm/{key}')
+          .post('/auth/confirm/{key}')
           .withPathParams('key', randomKey)
           .withJson({ code: randomCode, password: 'password', confirmPassword: 'password' })
           // Then
@@ -219,27 +267,21 @@ describe('backend tests', () => {
         testCase.cleanup()
         redis.del(randomKey)
       })
-      test('should respond Error for POST /auth/register/confirm/:key with not matching confirmPassword', async () => {
-        const { prisma, redis, config } = getCurrentServer()?.fastifyServer
-        const user = await prisma.user.create({
-          data: {
-            name: 'name',
-            email: 'some@email.com',
-            username: 'username',
-          },
-        })
+      test('should respond Error for POST /auth/confirm/:key with not matching confirmPassword', async () => {
+        const { redis, config } = getCurrentServer()?.fastifyServer
+        const user = await insertUser(false)
         const randomCode = Math.trunc(Math.random() * 1000000).toString()
         const randomKey = randomUUID()
-        const redisKey = `${REDIS_REGISTER_KEY_PREFIX}${randomKey}#${randomCode}`
+        const redisKey = `${REDIS_CONFIRM_KEY_PREFIX}${randomKey}#${randomCode}`
         const redisValue = `${user.id}`
         redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /auth/register/confirm/:key')
+          .step('POST /auth/confirm/:key')
           .spec()
           // When
-          .post('/auth/register/confirm/{key}')
+          .post('/auth/confirm/{key}')
           .withPathParams('key', randomKey)
           .withJson({ code: randomCode, password: 'password', confirmPassword: 'passwor' })
           // Then
@@ -249,7 +291,7 @@ describe('backend tests', () => {
         testCase.cleanup()
         redis.del(randomKey)
       })
-      test('should respond 400 for POST /auth/register/confirm/:key with invalid payload', async () => {
+      test('should respond 400 for POST /auth/confirm/:key with invalid payload', async () => {
         const randomKey = randomUUID()
         //Given
         const testCase = e2e(getCurrentTestName())
@@ -283,10 +325,10 @@ describe('backend tests', () => {
           },
         }
         await testCase
-          .step('POST /auth/register/confirm/:key')
+          .step('POST /auth/confirm/:key')
           .spec()
           // When
-          .post('/auth/register/confirm/{key}')
+          .post('/auth/confirm/{key}')
           .withPathParams('key', randomKey)
           .withJson({})
           // Then

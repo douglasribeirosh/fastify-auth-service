@@ -40,7 +40,7 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
       const info = await mailer.sendMail({
         to: `"${name}" <${email}>`,
         subject: `Hello ${name} ✔`,
-        text: `POST http://localhost:${config.port}/auth/register/confirm/${randomKey} using confirmation code ${randomCode}`,
+        text: `POST http://localhost:${config.port}/auth/confirm/${randomKey} using confirmation code ${randomCode}`,
       })
       log.debug('Message sent: %s', info.messageId)
       log.debug('Preview URL: %s', nodemailer.getTestMessageUrl(info))
@@ -52,36 +52,6 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
       return
     },
   )
-  fastify.post<{
-    Params: { key: string }
-    Body: { password: string; confirmPassword: string; code: string }
-  }>('/confirm/:key', async (request, reply) => {
-    const { log, prisma } = fastify
-    const BodyZ = z.object({
-      code: z.string(),
-      password: z.string(),
-      confirmPassword: z.string(),
-    })
-    const validation = BodyZ.safeParse(request.body)
-    if (!validation.success) {
-      reply.status(400)
-      return { code: 400, error: validation.error }
-    }
-    const { password, confirmPassword } = request.body
-    const { code } = request.body
-    const { key } = request.params
-    const { redis } = fastify
-    const userId = await redis.get(`${REDIS_REGISTER_KEY_PREFIX}${key}#${code}`)
-    log.debug({ key, code, userId })
-    if (password !== confirmPassword || !userId) {
-      reply.status(400)
-      return { code: 400, error: 'Error when confirming password or code' }
-    }
-    const passwordHash = await hash(password, 10)
-    await prisma.user.update({ where: { id: userId }, data: { passwordHash } })
-    void reply.status(204)
-    return
-  })
   return Promise.resolve()
 }
 

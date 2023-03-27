@@ -1,3 +1,4 @@
+import { hash } from 'bcryptjs'
 import { request } from 'pactum'
 import { defaultTestConfig } from '../../../main/config'
 import { buildServer, startServer, stopServer } from '../../../main/server'
@@ -35,4 +36,17 @@ const getCurrentTestName = () => {
   return currentTestName
 }
 
-export { getCurrentServer, getCurrentTestName, registerHooks }
+const insertUser = async (withPassword = false) => {
+  const { prisma } = getCurrentServer()?.fastifyServer
+  const passwordHash = withPassword ? await hash('P@ssw0rd', 10) : undefined
+  return await prisma.user.create({
+    data: {
+      name: 'name',
+      email: 'name@less.com',
+      username: 'login',
+      passwordHash,
+    },
+  })
+}
+
+export { getCurrentServer, getCurrentTestName, registerHooks, insertUser }

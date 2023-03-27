@@ -1,7 +1,7 @@
 import { hash } from 'bcryptjs'
 import { e2e } from 'pactum'
 import { int, string, uuid } from 'pactum-matchers'
-import { getCurrentServer, getCurrentTestName, registerHooks } from '../utils/test-case'
+import { getCurrentServer, getCurrentTestName, insertUser, registerHooks } from '../utils/test-case'
 
 describe('backend tests', () => {
   describe('backend server /api/users e2e tests', () => {
@@ -27,17 +27,8 @@ describe('backend tests', () => {
         testCase.cleanup()
       })
       test('should respond user for GET /api/users/me with Authorization and Unauthorized after POST /auth/logout', async () => {
-        const { prisma } = getCurrentServer()?.fastifyServer
-        const passwordHash = await hash('P@ssw0rd', 10)
-        await prisma.user.create({
-          data: {
-            name: 'name',
-            email: 'some@email.com',
-            username: 'login',
-            passwordHash,
-          },
-        })
         //Given
+        await insertUser(true)
         const testCase = e2e(getCurrentTestName())
         await testCase
           .step('POST /auth/login')
