@@ -1,4 +1,4 @@
-import fastify, { FastifyBaseLogger, FastifyPluginAsync, onRequestHookHandler } from 'fastify'
+import fastify, { FastifyBaseLogger, onRequestHookHandler } from 'fastify'
 import { Config } from '../types/config'
 import { FastifyT, ServerT } from '../types/server'
 import jwt from '@fastify/jwt'
@@ -21,6 +21,9 @@ declare module 'fastify' {
     >
     redis: RedisClientType
     authenticate: onRequestHookHandler
+  }
+  export interface FastifyRequest {
+    dev: { id: string; username: string }
   }
 }
 
@@ -53,6 +56,8 @@ const buildServer = async (config: Config) => {
   fastifyServer.decorate('config', config)
   fastifyServer.decorate('mailer', await buildMailer(config))
   fastifyServer.decorate('redis', redis)
+  const dev: { id: string; username: string; iat: number } | undefined = undefined
+  fastifyServer.decorateRequest('dev', dev)
   fastifyServer.register(jwt, {
     secret: config.jwtSecret,
   })

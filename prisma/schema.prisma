@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model Dev {
   id            String   @id @default(uuid())
   email         String   @unique
   username      String   @unique
@@ -27,6 +27,21 @@ model Domain {
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  owner         User @relation(fields: [ownerId], references: [id])
+  owner         Dev @relation(fields: [ownerId], references: [id])
   ownerId       String
+  users         User[]
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String
+  nickname      String
+  namePrefix    String
+  name          String
+  passwordHash  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  domain        Domain @relation(fields: [domainId], references: [id])
+  domainId      String
+  @@unique([email, domainId])
 }

@@ -1,19 +1,19 @@
 import { e2e } from 'pactum'
 import { int, string, uuid } from 'pactum-matchers'
-import { getCurrentTestName, insertUser, registerHooks } from '../utils/test-case'
+import { getCurrentTestName, insertDev, registerHooks } from '../utils/test-case'
 
 describe('backend tests', () => {
-  describe('backend server /api/users e2e tests', () => {
-    describe('/api/users', () => {
+  describe('backend server /api/devs e2e tests', () => {
+    describe('/api/devs', () => {
       registerHooks()
-      test('should respond unauthorized for GET /api/users/me', async () => {
+      test('should respond unauthorized for GET /api/devs/me', async () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('GET /api/users/me')
+          .step('GET /api/devs/me')
           .spec()
           // When
-          .get('/api/users/me')
+          .get('/api/devs/me')
           // Then
           .expectStatus(401)
           .expectJson({
@@ -25,9 +25,9 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond user for GET /api/users/me with Authorization and Unauthorized after POST /auth/logout', async () => {
+      test('should respond dev for GET /api/devs/me with Authorization and Unauthorized after POST /auth/logout', async () => {
         //Given
-        await insertUser(true)
+        await insertDev(true)
         const testCase = e2e(getCurrentTestName())
         await testCase
           .step('POST /auth/login')
@@ -41,11 +41,11 @@ describe('backend tests', () => {
           .stores('Token', 'token')
           .toss()
         await testCase
-          .step('GET /api/users/me')
+          .step('GET /api/devs/me')
           .spec()
           // When
           .withHeaders('Authorization', `Bearer $S{Token}`)
-          .get('/api/users/me')
+          .get('/api/devs/me')
           // Then
           .expectStatus(200)
           .expectJsonMatch({
@@ -65,10 +65,10 @@ describe('backend tests', () => {
           .expectBody('')
           .toss()
         await testCase
-          .step('GET /api/users/me')
+          .step('GET /api/devs/me')
           .spec()
           // When
-          .get('/api/users/me')
+          .get('/api/devs/me')
           .withHeaders('Authorization', `Bearer $S{Token}`)
           // Then
           .expectStatus(401)

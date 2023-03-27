@@ -17,7 +17,7 @@ const registerHooks = () => {
   })
   beforeEach(async () => {
     await server?.fastifyServer.prisma.domain.deleteMany()
-    await server?.fastifyServer.prisma.user.deleteMany()
+    await server?.fastifyServer.prisma.dev.deleteMany()
   })
   afterEach(async () => {})
   afterAll(async () => {
@@ -38,10 +38,10 @@ const getCurrentTestName = () => {
   return currentTestName
 }
 
-const insertUser = async (withPassword = false) => {
+const insertDev = async (withPassword = false) => {
   const { prisma } = getCurrentServer()?.fastifyServer
   const passwordHash = withPassword ? await hash('P@ssw0rd', 10) : undefined
-  return await prisma.user.create({
+  return await prisma.dev.create({
     data: {
       name: 'name',
       email: 'name@less.com',
@@ -62,4 +62,4 @@ const login = async (testCase: E2E) => {
     .toss()
 }
 
-export { getCurrentServer, getCurrentTestName, registerHooks, insertUser, login }
+export { getCurrentServer, getCurrentTestName, registerHooks, insertDev, login }

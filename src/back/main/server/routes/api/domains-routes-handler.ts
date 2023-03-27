@@ -34,15 +34,15 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     },
     async (request: FastifyRequest<{ Body: DomainPostBody }>, reply) => {
       const { log, prisma } = fastify
-      const { user } = request
-      log.debug({ user })
+      const { dev } = request
+      log.debug({ dev })
       const BodyZ = DomainPostBodyZ
       const validation = BodyZ.safeParse(request.body)
       if (!validation.success) {
         return replyRequestValidationError(validation.error, reply)
       }
       const { name } = request.body
-      const domain: Domain = await prisma.domain.create({ data: { name, ownerId: user.id } })
+      const domain: Domain = await prisma.domain.create({ data: { name, ownerId: dev.id } })
       return domain
     },
   )
@@ -54,9 +54,9 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     },
     async (request: FastifyRequest) => {
       const { log, prisma } = fastify
-      const { user } = request
-      log.debug({ user })
-      const domains = await prisma.domain.findMany({ where: { ownerId: user.id } })
+      const { dev } = request
+      log.debug({ dev })
+      const domains = await prisma.domain.findMany({ where: { ownerId: dev.id } })
       return domains
     },
   )
@@ -68,10 +68,10 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     },
     async (request: FastifyRequest<{ Params: DomainParamsWithId }>, reply) => {
       const { log, prisma } = fastify
-      const { user } = request
-      log.debug({ user })
+      const { dev } = request
+      log.debug({ dev })
       const { id } = request.params
-      const domain = await prisma.domain.findFirst({ where: { id, ownerId: user.id } })
+      const domain = await prisma.domain.findFirst({ where: { id, ownerId: dev.id } })
       if (!domain) {
         return replyNotFound(entityName, reply)
       }
@@ -95,15 +95,15 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       reply,
     ) => {
       const { log, prisma } = fastify
-      const { user } = request
-      log.debug({ user })
+      const { dev } = request
+      log.debug({ dev })
       const { id } = request.params
       const BodyZ = DomainPatchBodyZ
       const validation = BodyZ.safeParse(request.body)
       if (!validation.success) {
         return replyRequestValidationError(validation.error, reply)
       }
-      const domain = await prisma.domain.findFirst({ where: { id, ownerId: user.id } })
+      const domain = await prisma.domain.findFirst({ where: { id, ownerId: dev.id } })
       if (!domain) {
         return replyNotFound(entityName, reply)
       }
@@ -119,10 +119,10 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     },
     async (request, reply) => {
       const { log, prisma } = fastify
-      const { user } = request
-      log.debug({ user })
+      const { dev } = request
+      log.debug({ dev })
       const { id } = request.params
-      const domain = await prisma.domain.findFirst({ where: { id, ownerId: user.id } })
+      const domain = await prisma.domain.findFirst({ where: { id, ownerId: dev.id } })
       if (!domain) {
         return replyNotFound(entityName, reply)
       }

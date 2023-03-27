@@ -7,9 +7,9 @@ const usersRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     },
     async (request: FastifyRequest) => {
       const { log } = fastify
-      const { user } = request
-      log.debug({ user })
-      return user
+      const { dev } = request
+      log.debug({ dev })
+      return dev
     },
   )
   return Promise.resolve()

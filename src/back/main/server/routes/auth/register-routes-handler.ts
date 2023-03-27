@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import nodemailer from 'nodemailer'
 import { z } from 'zod'
-import { handlePrismaUserDuplicateError } from '../../errors/errorHandlers'
+import { handlePrismaDevDuplicateError } from '../../errors/errorHandlers'
 import { REDIS_CONFIRM_KEY_PREFIX } from '../../../common/constants'
 import { replyRequestValidationError } from '../../errors/httpErrors'
 
@@ -24,7 +24,7 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
       const randomCode = Math.trunc(Math.random() * 1000000).toString()
       const randomKey = randomUUID()
       const mailer = fastify.mailer
-      const user = await prisma.user
+      const dev = await prisma.dev
         .create({
           data: {
             name,
@@ -33,9 +33,9 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
           },
         })
         .catch((err) => {
-          throw handlePrismaUserDuplicateError(err, reply)
+          throw handlePrismaDevDuplicateError(err, reply)
         })
-      log.debug({ user })
+      log.debug({ dev })
       const info = await mailer.sendMail({
         to: `"${name}" <${email}>`,
         subject: `Hello ${name} ✔`,
@@ -45,7 +45,7 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
       log.debug('Preview URL: %s', nodemailer.getTestMessageUrl(info))
       const { redis } = fastify
       const redisKey = `${REDIS_CONFIRM_KEY_PREFIX}${randomKey}#${randomCode}`
-      const redisValue = `${user.id}`
+      const redisValue = `${dev.id}`
       redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
       void reply.status(204)
       return

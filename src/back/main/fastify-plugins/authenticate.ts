@@ -13,17 +13,17 @@ const authenticate: preHandlerAsyncHookHandler = async function (
   reply: FastifyReply,
 ) {
   try {
-    await request.jwtVerify()
+    const dev: { id: string; username: string; iat: number } = await request.jwtVerify()
+    const { authorization } = request.headers
+    const { redis } = this
+    const redisValue = await redis.get(`${REDIS_LOGOUT_KEY_PREFIX}${dev.id}#${authorization}`)
+    if (redisValue) {
+      reply.status(401)
+      reply.send({ code: 401, error: 'Unauthorized' })
+    }
+    request.dev = dev
   } catch (err) {
     reply.send(err)
-  }
-  const { user } = request
-  const { authorization } = request.headers
-  const { redis } = this
-  const redisValue = await redis.get(`${REDIS_LOGOUT_KEY_PREFIX}${user.id}#${authorization}`)
-  if (redisValue) {
-    reply.status(401)
-    reply.send({ code: 401, error: 'Unauthorized' })
   }
 }
 

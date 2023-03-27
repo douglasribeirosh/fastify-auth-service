@@ -15,18 +15,18 @@ const loginRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       return replyRequestValidationError(validation.error, reply)
     }
     const { username, password } = request.body
-    const user = await prisma.user.findFirst({
+    const dev = await prisma.dev.findFirst({
       where: {
         username,
       },
     })
-    log.debug({ user })
-    if (!user || (user.passwordHash && !(await compare(password, user.passwordHash)))) {
+    log.debug({ dev })
+    if (!dev || (dev.passwordHash && !(await compare(password, dev.passwordHash)))) {
       reply.status(401)
       log.debug('Unauthorized', request.body)
       return { code: 401, error: 'Unauthorized' }
     }
-    const token = fastify.jwt.sign({ id: user.id, username })
+    const token = fastify.jwt.sign({ id: dev.id, username })
     return { token }
   })
   return Promise.resolve()

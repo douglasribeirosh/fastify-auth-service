@@ -1,9 +1,8 @@
-import { hash } from 'bcryptjs'
 import { randomUUID } from 'crypto'
 import { e2e } from 'pactum'
 import { string } from 'pactum-matchers'
 import { REDIS_CONFIRM_KEY_PREFIX } from '../../main/common/constants'
-import { getCurrentServer, getCurrentTestName, insertUser, registerHooks } from './utils/test-case'
+import { getCurrentServer, getCurrentTestName, insertDev, registerHooks } from './utils/test-case'
 
 describe('backend tests', () => {
   describe('backend server /auth e2e tests', () => {
@@ -11,7 +10,7 @@ describe('backend tests', () => {
       registerHooks()
       test('should respond token for POST /auth/login and be able to POST /auth/logout with token', async () => {
         //Given
-        await insertUser(true)
+        await insertDev(true)
         const testCase = e2e(getCurrentTestName())
         await testCase
           .step('POST /auth/login')
@@ -182,7 +181,7 @@ describe('backend tests', () => {
       })
       test('should respond 204 for POST /auth/reset-pass with data', async () => {
         //Given
-        await insertUser()
+        await insertDev()
         const testCase = e2e(getCurrentTestName())
         await testCase
           .step('POST /auth/reset-pass')
@@ -226,7 +225,7 @@ describe('backend tests', () => {
       })
       test('should respond 404 for POST /auth/reset-pass with not existing email', async () => {
         //Given
-        await insertUser()
+        await insertDev()
         const testCase = e2e(getCurrentTestName())
         await testCase
           .step('POST /auth/reset-pass')
@@ -238,18 +237,18 @@ describe('backend tests', () => {
           .expectStatus(404)
           .expectJson({
             code: 404,
-            error: 'User not found',
+            error: 'Dev not found',
           })
           .toss()
         testCase.cleanup()
       })
       test('should respond 204 for POST /auth/confirm/:key with data', async () => {
         const { redis, config } = getCurrentServer()?.fastifyServer
-        const user = await insertUser(false)
+        const dev = await insertDev(false)
         const randomCode = Math.trunc(Math.random() * 1000000).toString()
         const randomKey = randomUUID()
         const redisKey = `${REDIS_CONFIRM_KEY_PREFIX}${randomKey}#${randomCode}`
-        const redisValue = `${user.id}`
+        const redisValue = `${dev.id}`
         redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
         //Given
         const testCase = e2e(getCurrentTestName())
@@ -269,11 +268,11 @@ describe('backend tests', () => {
       })
       test('should respond Error for POST /auth/confirm/:key with not matching confirmPassword', async () => {
         const { redis, config } = getCurrentServer()?.fastifyServer
-        const user = await insertUser(false)
+        const dev = await insertDev(false)
         const randomCode = Math.trunc(Math.random() * 1000000).toString()
         const randomKey = randomUUID()
         const redisKey = `${REDIS_CONFIRM_KEY_PREFIX}${randomKey}#${randomCode}`
-        const redisValue = `${user.id}`
+        const redisValue = `${dev.id}`
         redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
         //Given
         const testCase = e2e(getCurrentTestName())

@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import { e2e } from 'pactum'
-import { gt, notEquals, string } from 'pactum-matchers'
-import { getCurrentTestName, insertUser, login, registerHooks } from '../utils/test-case'
+import { notEquals, string } from 'pactum-matchers'
+import { getCurrentTestName, insertDev, login, registerHooks } from '../utils/test-case'
 
 describe('backend tests', () => {
   describe('backend server /api/domains e2e tests', () => {
@@ -9,7 +9,7 @@ describe('backend tests', () => {
       registerHooks()
       test('should respond 400 for CRUD /api/domains when sending invalid data', async () => {
         //Given
-        await insertUser(true)
+        await insertDev(true)
         const testCase = e2e(getCurrentTestName())
         await login(testCase)
         const domainId = randomUUID()
@@ -62,7 +62,7 @@ describe('backend tests', () => {
       })
       test('should respond 404 for CRUD /api/domains when domain not found', async () => {
         //Given
-        await insertUser(true)
+        await insertDev(true)
         const testCase = e2e(getCurrentTestName())
         await login(testCase)
         const domainId = randomUUID()
@@ -104,7 +104,7 @@ describe('backend tests', () => {
       })
       test('should pass tests for CRUD /api/domains', async () => {
         //Given
-        const user = await insertUser(true)
+        const dev = await insertDev(true)
         const testCase = e2e(getCurrentTestName())
         await login(testCase)
         await testCase
@@ -120,7 +120,7 @@ describe('backend tests', () => {
             id: string(),
             name: 'domain-name',
             active: true,
-            ownerId: user.id,
+            ownerId: dev.id,
             createdAt: string(),
             updatedAt: string(),
           })
@@ -133,7 +133,7 @@ describe('backend tests', () => {
           name: 'domain-name',
           active: true,
           createdAt: `$S{DomainCreatedAt}`,
-          ownerId: user.id,
+          ownerId: dev.id,
           updatedAt: `$S{DomainUpdatedAt}`,
         }
         await testCase

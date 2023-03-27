@@ -23,13 +23,13 @@ const confirmRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     const { code } = request.body
     const { key } = request.params
     const { redis } = fastify
-    const userId = await redis.get(`${REDIS_CONFIRM_KEY_PREFIX}${key}#${code}`)
-    log.debug({ key, code, userId })
-    if (password !== confirmPassword || !userId) {
+    const devId = await redis.get(`${REDIS_CONFIRM_KEY_PREFIX}${key}#${code}`)
+    log.debug({ key, code, devId })
+    if (password !== confirmPassword || !devId) {
       return replyRequestValidationError('Error when confirming password or code', reply)
     }
     const passwordHash = await hash(password, 10)
-    await prisma.user.update({ where: { id: userId }, data: { passwordHash } })
+    await prisma.dev.update({ where: { id: devId }, data: { passwordHash } })
     void reply.status(204)
     return
   })

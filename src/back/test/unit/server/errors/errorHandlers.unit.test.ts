@@ -4,7 +4,7 @@ import { requireFromBaseDir } from '../../../utils/jest-helper'
 describe('backend tests', () => {
   describe('errorHandlers unit tests', () => {
     let module: {
-      handlePrismaUserDuplicateError: (
+      handlePrismaDevDuplicateError: (
         err: { code: string },
         reply: FastifyReply,
       ) => { code: string }
@@ -22,7 +22,7 @@ describe('backend tests', () => {
       test('handlePrismaDuplicateError should return same error when code does not mean duplicate', () => {
         const expectedError = { code: 'unknown' }
         const reply = {} as FastifyReply
-        const error = module.handlePrismaUserDuplicateError(expectedError, reply)
+        const error = module.handlePrismaDevDuplicateError(expectedError, reply)
         expect(error).toBe(expectedError)
       })
     })

@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { REDIS_CONFIRM_KEY_PREFIX } from '../../../common/constants'
 import { replyNotFound, replyRequestValidationError } from '../../errors/httpErrors'
 
-const entityName = 'User'
+const entityName = 'Dev'
 
 const resetPassRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { email: string } }>('/', async (request, reply) => {
@@ -21,16 +21,16 @@ const resetPassRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) =>
     const randomCode = Math.trunc(Math.random() * 1000000).toString()
     const randomKey = randomUUID()
     const mailer = fastify.mailer
-    const user = await prisma.user.findFirst({
+    const dev = await prisma.dev.findFirst({
       where: {
         email,
       },
     })
-    if (!user) {
+    if (!dev) {
       return replyNotFound(entityName, reply)
     }
-    const { name } = user
-    log.debug({ user })
+    const { name } = dev
+    log.debug({ dev })
     const info = await mailer.sendMail({
       to: `"${name}" <${email}>`,
       subject: `Hello ${name} ✔`,
@@ -40,7 +40,7 @@ const resetPassRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) =>
     log.debug('Preview URL: %s', nodemailer.getTestMessageUrl(info))
     const { redis } = fastify
     const redisKey = `${REDIS_CONFIRM_KEY_PREFIX}${randomKey}#${randomCode}`
-    const redisValue = `${user.id}`
+    const redisValue = `${dev.id}`
     redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
     void reply.status(204)
     return
