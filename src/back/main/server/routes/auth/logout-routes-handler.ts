@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 import { REDIS_LOGOUT_KEY_PREFIX } from '../../../common/constants'
+import { replyRequestValidationError } from '../../errors/httpErrors'
 
 const logoutRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: undefined }>('/', async (request, reply) => {
@@ -8,8 +9,7 @@ const logoutRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     const BodyZ = z.undefined()
     const validation = BodyZ.safeParse(request.body)
     if (!validation.success) {
-      reply.status(400)
-      return { code: 400, error: validation.error }
+      return replyRequestValidationError('Error when confirming password or code', reply)
     }
     const { authorization } = request.headers
     await request.jwtVerify()

@@ -4,6 +4,7 @@ import nodemailer from 'nodemailer'
 import { z } from 'zod'
 import { handlePrismaUserDuplicateError } from '../../errors/errorHandlers'
 import { REDIS_CONFIRM_KEY_PREFIX } from '../../../common/constants'
+import { replyRequestValidationError } from '../../errors/httpErrors'
 
 const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { name: string; email: string; username: string } }>(
@@ -17,8 +18,7 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
       })
       const validation = BodyZ.safeParse(request.body)
       if (!validation.success) {
-        reply.status(400)
-        return { code: 400, error: validation.error }
+        return replyRequestValidationError(validation.error, reply)
       }
       const { name, email, username } = request.body
       const randomCode = Math.trunc(Math.random() * 1000000).toString()

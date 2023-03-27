@@ -1,5 +1,8 @@
 import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from 'fastify'
 import { z } from 'zod'
+import { replyNotFound, replyRequestValidationError } from '../../errors/httpErrors'
+
+const entityName = 'Domain'
 
 const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   // Create
@@ -17,8 +20,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       })
       const validation = BodyZ.safeParse(request.body)
       if (!validation.success) {
-        reply.status(400)
-        return { code: 400, error: validation.error }
+        return replyRequestValidationError(validation.error, reply)
       }
       const { name } = request.body
       const domain = await prisma.domain.create({ data: { name, ownerId: user.id } })
@@ -52,8 +54,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       const { id } = request.params
       const domain = await prisma.domain.findFirst({ where: { id, ownerId: user.id } })
       if (!domain) {
-        reply.status(404)
-        return { code: 404, error: 'Domain not found' }
+        return replyNotFound(entityName, reply)
       }
       return domain
     },
@@ -91,13 +92,11 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
         )
       const validation = BodyZ.safeParse(request.body)
       if (!validation.success) {
-        reply.status(400)
-        return { code: 400, error: validation.error }
+        return replyRequestValidationError(validation.error, reply)
       }
       const domain = await prisma.domain.findFirst({ where: { id, ownerId: user.id } })
       if (!domain) {
-        reply.status(404)
-        return { code: 404, error: 'Domain not found' }
+        return replyNotFound(entityName, reply)
       }
       const { name, active } = request.body
       return await prisma.domain.update({ where: { id: domain.id }, data: { ...{ name, active } } })
@@ -116,8 +115,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       const { id } = request.params
       const domain = await prisma.domain.findFirst({ where: { id, ownerId: user.id } })
       if (!domain) {
-        reply.status(404)
-        return { code: 404, error: 'Domain not found' }
+        return replyNotFound(entityName, reply)
       }
       await prisma.domain.delete({ where: { id: domain.id } })
       reply.status(204)

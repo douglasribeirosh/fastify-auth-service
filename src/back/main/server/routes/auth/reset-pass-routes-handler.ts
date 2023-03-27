@@ -3,6 +3,9 @@ import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import nodemailer from 'nodemailer'
 import { z } from 'zod'
 import { REDIS_CONFIRM_KEY_PREFIX } from '../../../common/constants'
+import { replyNotFound, replyRequestValidationError } from '../../errors/httpErrors'
+
+const entityName = 'User'
 
 const resetPassRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { email: string } }>('/', async (request, reply) => {
@@ -12,8 +15,7 @@ const resetPassRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) =>
     })
     const validation = BodyZ.safeParse(request.body)
     if (!validation.success) {
-      reply.status(400)
-      return { code: 400, error: validation.error }
+      return replyRequestValidationError(validation.error, reply)
     }
     const { email } = request.body
     const randomCode = Math.trunc(Math.random() * 1000000).toString()
@@ -25,8 +27,7 @@ const resetPassRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) =>
       },
     })
     if (!user) {
-      reply.status(404)
-      return { code: 404, error: 'User not found' }
+      return replyNotFound(entityName, reply)
     }
     const { name } = user
     log.debug({ user })

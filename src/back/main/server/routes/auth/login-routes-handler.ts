@@ -1,6 +1,7 @@
 import { compare } from 'bcryptjs'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
+import { replyRequestValidationError } from '../../errors/httpErrors'
 
 const loginRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { username: string; password: string } }>('/', async (request, reply) => {
@@ -11,8 +12,7 @@ const loginRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     })
     const validation = BodyZ.safeParse(request.body)
     if (!validation.success) {
-      reply.status(400)
-      return { code: 400, error: validation.error }
+      return replyRequestValidationError(validation.error, reply)
     }
     const { username, password } = request.body
     const user = await prisma.user.findFirst({
