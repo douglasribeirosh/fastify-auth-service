@@ -1,29 +1,48 @@
+import { Domain } from '.prisma/client'
 import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from 'fastify'
 import { z } from 'zod'
+import { DomainParamsWithId } from '../../../types/server/routes/api/domains-routes-handler'
 import { replyNotFound, replyRequestValidationError } from '../../errors/httpErrors'
 
 const entityName = 'Domain'
 
+const DomainPostBodyZ = z.object({
+  name: z.string().nonempty(),
+})
+
+const DomainPatchBodyZ = z
+  .object({
+    name: z.string(),
+    active: z.boolean(),
+  })
+  .partial()
+  .refine(
+    (obj: Record<string | number | symbol, unknown>) =>
+      Object.values(obj).some((v) => v !== undefined),
+    { message: 'One of the fields must be defined' },
+  )
+
+type DomainPostBody = z.infer<typeof DomainPostBodyZ>
+type DomainPatchBody = z.infer<typeof DomainPatchBodyZ>
+
 const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   // Create
-  fastify.post<{ Body: { name: string } }>(
+  fastify.post<{ Body: DomainPostBody }>(
     '/',
     {
       onRequest: [fastify.authenticate],
     },
-    async (request: FastifyRequest<{ Body: { name: string } }>, reply) => {
+    async (request: FastifyRequest<{ Body: DomainPostBody }>, reply) => {
       const { log, prisma } = fastify
       const { user } = request
       log.debug({ user })
-      const BodyZ = z.object({
-        name: z.string().nonempty(),
-      })
+      const BodyZ = DomainPostBodyZ
       const validation = BodyZ.safeParse(request.body)
       if (!validation.success) {
         return replyRequestValidationError(validation.error, reply)
       }
       const { name } = request.body
-      const domain = await prisma.domain.create({ data: { name, ownerId: user.id } })
+      const domain: Domain = await prisma.domain.create({ data: { name, ownerId: user.id } })
       return domain
     },
   )
@@ -42,12 +61,12 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     },
   )
   // Read by Id
-  fastify.get<{ Params: { id: string } }>(
+  fastify.get<{ Params: DomainParamsWithId }>(
     '/:id',
     {
       onRequest: [fastify.authenticate],
     },
-    async (request: FastifyRequest<{ Params: { id: string } }>, reply) => {
+    async (request: FastifyRequest<{ Params: DomainParamsWithId }>, reply) => {
       const { log, prisma } = fastify
       const { user } = request
       log.debug({ user })
@@ -61,8 +80,8 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   )
   // Update patch by Id
   fastify.patch<{
-    Body: { name?: string; active?: boolean }
-    Params: { id: string; enable: boolean }
+    Body: DomainPatchBody
+    Params: DomainParamsWithId
   }>(
     '/:id',
     {
@@ -70,8 +89,8 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     },
     async (
       request: FastifyRequest<{
-        Params: { id: string; enable: boolean }
-        Body: { name?: string; active?: boolean }
+        Params: DomainParamsWithId
+        Body: DomainPatchBody
       }>,
       reply,
     ) => {
@@ -79,17 +98,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       const { user } = request
       log.debug({ user })
       const { id } = request.params
-      const BodyZ = z
-        .object({
-          name: z.string(),
-          active: z.boolean(),
-        })
-        .partial()
-        .refine(
-          (obj: Record<string | number | symbol, unknown>) =>
-            Object.values(obj).some((v) => v !== undefined),
-          { message: 'One of the fields must be defined' },
-        )
+      const BodyZ = DomainPatchBodyZ
       const validation = BodyZ.safeParse(request.body)
       if (!validation.success) {
         return replyRequestValidationError(validation.error, reply)
@@ -103,7 +112,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     },
   )
   // Delete by Id
-  fastify.delete<{ Params: { id: string } }>(
+  fastify.delete<{ Params: DomainParamsWithId }>(
     '/:id',
     {
       onRequest: [fastify.authenticate],
