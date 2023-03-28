@@ -16,6 +16,7 @@ const registerHooks = () => {
     request.setBaseUrl(serverBaseUrl)
   })
   beforeEach(async () => {
+    await server?.fastifyServer.prisma.user.deleteMany()
     await server?.fastifyServer.prisma.domain.deleteMany()
     await server?.fastifyServer.prisma.dev.deleteMany()
   })
@@ -51,6 +52,16 @@ const insertDev = async (withPassword = false) => {
   })
 }
 
+const insertDomain = async (devId: string) => {
+  const { prisma } = getCurrentServer()?.fastifyServer
+  return await prisma.domain.create({
+    data: {
+      name: 'test.domain',
+      ownerId: devId,
+    },
+  })
+}
+
 const login = async (testCase: E2E) => {
   await testCase
     .step('POST /auth/login')
@@ -62,4 +73,4 @@ const login = async (testCase: E2E) => {
     .toss()
 }
 
-export { getCurrentServer, getCurrentTestName, registerHooks, insertDev, login }
+export { getCurrentServer, getCurrentTestName, registerHooks, insertDev, login, insertDomain }

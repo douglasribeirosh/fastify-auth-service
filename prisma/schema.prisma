@@ -35,12 +35,13 @@ model Domain {
 model User {
   id            String   @id @default(uuid())
   email         String
-  nickname      String
-  namePrefix    String
-  name          String
+  nickname      String?
+  namePrefix    String?
+  name          String?
   passwordHash  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  active        Boolean @default(true)
   domain        Domain @relation(fields: [domainId], references: [id])
   domainId      String
   @@unique([email, domainId])
