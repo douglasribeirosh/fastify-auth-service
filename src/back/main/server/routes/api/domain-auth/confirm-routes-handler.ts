@@ -20,7 +20,6 @@ const confirmRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     Body: PostBody
   }>('/:key', async (request, reply) => {
     const { log, prisma } = fastify
-
     const validation = PostBodyZ.safeParse(request.body)
     if (!validation.success) {
       return replyRequestValidationError(validation.error, reply)

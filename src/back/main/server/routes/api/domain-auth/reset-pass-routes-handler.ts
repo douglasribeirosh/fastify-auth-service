@@ -2,45 +2,40 @@ import { randomUUID } from 'crypto'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import nodemailer from 'nodemailer'
 import { z } from 'zod'
-import { handlePrismaDevDuplicateError } from '../../../errors/errorHandlers'
 import { REDIS_CONFIRM_KEY_PREFIX, REDIS_DOMAIN_KEY_PREFIX } from '../../../../common/constants'
-import { replyRequestValidationError } from '../../../errors/httpErrors'
+import { replyNotFound, replyRequestValidationError } from '../../../errors/httpErrors'
+
+const entityName = 'User'
 
 const PostBodyZ = z.object({
   domainId: z.string().nonempty(),
   email: z.string().email(),
-  nickname: z.string().optional(),
-  namePrefix: z.string().optional(),
-  name: z.string().optional(),
 })
 
 type PostBody = z.infer<typeof PostBodyZ>
 
-// TODO: Encrypt communication between client app and this server and use secret stored in domain
-const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
+const resetPassRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: PostBody }>('/', async (request, reply) => {
     const { prisma, config, log } = fastify
     const validation = PostBodyZ.safeParse(request.body)
     if (!validation.success) {
       return replyRequestValidationError(validation.error, reply)
     }
-    const { email, nickname, namePrefix, name, domainId } = request.body
+    const { email, domainId } = request.body
     const randomCode = Math.trunc(Math.random() * 1000000).toString()
     const randomKey = randomUUID()
     const mailer = fastify.mailer
-    const user = await prisma.user
-      .create({
-        data: {
-          email,
-          domainId,
-          ...{ nickname, namePrefix, name },
-        },
-      })
-      .catch((err) => {
-        throw handlePrismaDevDuplicateError(err, reply)
-      })
+    const user = await prisma.user.findFirst({
+      where: {
+        domainId,
+        email,
+      },
+    })
+    if (!user) {
+      return replyNotFound(entityName, reply)
+    }
+    const { namePrefix, name } = user
     log.debug({ user })
-    // TODO: App should redirect and address should be customized (stored in database)
     const info = await mailer.sendMail({
       to: name ? `"${namePrefix ? `${namePrefix} ` : ''}${name}" <${email}>` : email,
       subject: `Hello ${namePrefix ? `${namePrefix} ` : ''}${name} ✔`,
@@ -58,4 +53,4 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
   return Promise.resolve()
 }
 
-export default registerRoutesHandler
+export default resetPassRoutesHandler

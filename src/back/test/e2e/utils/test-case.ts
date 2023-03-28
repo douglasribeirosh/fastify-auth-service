@@ -1,3 +1,4 @@
+import { User } from '.prisma/client'
 import { hash } from 'bcryptjs'
 import { request } from 'pactum'
 import E2E from 'pactum/src/models/E2E'
@@ -63,17 +64,26 @@ const insertDomain = async (devId: string) => {
 }
 
 const insertUser = async (domainId: string, withPassword = false) => {
-  const { prisma } = getCurrentServer()?.fastifyServer
-  const passwordHash = withPassword ? await hash('Us3rP@ssw0rd', 10) : undefined
-  return await prisma.user.create({
-    data: {
+  return await insertUserWithData(
+    {
       domainId,
       name: 'name',
       email: 'name@less.com',
       nickname: 'nick',
       namePrefix: 'Me.',
-      passwordHash,
     },
+    withPassword,
+  )
+}
+
+const insertUserWithData = async (
+  data: { domainId: string; name?: string; email: string; nickname?: string; namePrefix?: string },
+  withPassword = false,
+) => {
+  const { prisma } = getCurrentServer()?.fastifyServer
+  const passwordHash = withPassword ? await hash('Us3rP@ssw0rd', 10) : undefined
+  return await prisma.user.create({
+    data: { ...data, passwordHash },
   })
 }
 
@@ -96,4 +106,5 @@ export {
   login,
   insertDomain,
   insertUser,
+  insertUserWithData,
 }
