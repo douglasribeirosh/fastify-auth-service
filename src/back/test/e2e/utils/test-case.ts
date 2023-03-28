@@ -62,6 +62,21 @@ const insertDomain = async (devId: string) => {
   })
 }
 
+const insertUser = async (domainId: string, withPassword = false) => {
+  const { prisma } = getCurrentServer()?.fastifyServer
+  const passwordHash = withPassword ? await hash('Us3rP@ssw0rd', 10) : undefined
+  return await prisma.user.create({
+    data: {
+      domainId,
+      name: 'name',
+      email: 'name@less.com',
+      nickname: 'nick',
+      namePrefix: 'Me.',
+      passwordHash,
+    },
+  })
+}
+
 const login = async (testCase: E2E) => {
   await testCase
     .step('POST /auth/login')
@@ -73,4 +88,12 @@ const login = async (testCase: E2E) => {
     .toss()
 }
 
-export { getCurrentServer, getCurrentTestName, registerHooks, insertDev, login, insertDomain }
+export {
+  getCurrentServer,
+  getCurrentTestName,
+  registerHooks,
+  insertDev,
+  login,
+  insertDomain,
+  insertUser,
+}
