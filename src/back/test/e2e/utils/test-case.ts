@@ -1,4 +1,3 @@
-import { User } from '.prisma/client'
 import { hash } from 'bcryptjs'
 import { request } from 'pactum'
 import E2E from 'pactum/src/models/E2E'
@@ -18,6 +17,7 @@ const registerHooks = () => {
   })
   beforeEach(async () => {
     await server?.fastifyServer.prisma.user.deleteMany()
+    await server?.fastifyServer.prisma.client.deleteMany()
     await server?.fastifyServer.prisma.domain.deleteMany()
     await server?.fastifyServer.prisma.dev.deleteMany()
   })

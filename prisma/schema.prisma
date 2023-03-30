@@ -29,7 +29,18 @@ model Domain {
   updatedAt     DateTime @updatedAt
   owner         Dev @relation(fields: [ownerId], references: [id])
   ownerId       String
+  clients       Client[]
   users         User[]
+}
+
+model Client {
+  id            String   @id @default(uuid())
+  secret        String   @default(uuid())
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  domain        Domain @relation(fields: [domainId], references: [id])
+  domainId      String
 }
 
 model User {

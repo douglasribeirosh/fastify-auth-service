@@ -16,4 +16,10 @@ const replyRequestValidationError = (err: string | z.ZodError, reply: FastifyRep
   return error
 }
 
-export { replyNotFound, replyRequestValidationError }
+const replyUnauthorizedError = (reply: FastifyReply) => {
+  const error = { code: 401, error: 'Unauthorized' }
+  reply.code(error.code)
+  return error
+}
+
+export { replyNotFound, replyRequestValidationError, replyUnauthorizedError }
