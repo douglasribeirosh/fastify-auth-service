@@ -63,6 +63,15 @@ const insertDomain = async (devId: string) => {
   })
 }
 
+const insertClient = async (domainId: string) => {
+  const { prisma } = getCurrentServer()?.fastifyServer
+  return await prisma.client.create({
+    data: {
+      domainId: domainId,
+    },
+  })
+}
+
 const insertUser = async (domainId: string, withPassword = false) => {
   return await insertUserWithData(
     {
@@ -105,6 +114,7 @@ export {
   insertDev,
   login,
   insertDomain,
+  insertClient,
   insertUser,
   insertUserWithData,
 }
