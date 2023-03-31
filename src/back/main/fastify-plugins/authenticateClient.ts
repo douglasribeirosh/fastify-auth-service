@@ -6,7 +6,11 @@ import type {
   preHandlerAsyncHookHandler,
 } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
-import { REDIS_LOGOUT_KEY_PREFIX } from '../common/constants'
+import {
+  REDIS_CLIENT_KEY_PREFIX,
+  REDIS_DOMAIN_KEY_PREFIX,
+  REDIS_LOGOUT_KEY_PREFIX,
+} from '../common/constants'
 import { replyUnauthorizedError } from '../server/errors/httpErrors'
 
 const decode = async (token: string, jwt: JWT, reply: FastifyReply) => {
@@ -35,13 +39,14 @@ const authenticateClient: preHandlerAsyncHookHandler = async function (
       this.jwt,
       reply,
     )
-    // TODO: Add client token to blacklist when deleting token
-    // const { redis } = this
-    // const redisValue = await redis.get(`${REDIS_LOGOUT_KEY_PREFIX}${dev.id}#${authorization}`)
-    // if (redisValue) {
-    //   reply.status(401)
-    //   reply.send({ code: 401, error: 'Unauthorized' })
-    // }
+    const { redis } = this
+    const redisValue = await redis.get(
+      `${REDIS_LOGOUT_KEY_PREFIX}${REDIS_DOMAIN_KEY_PREFIX}${client.domainId}:${REDIS_CLIENT_KEY_PREFIX}${client.id}`,
+    )
+    if (redisValue) {
+      replyUnauthorizedError(reply)
+      return
+    }
     request.client = client
   } catch (err) {
     reply.send(err)

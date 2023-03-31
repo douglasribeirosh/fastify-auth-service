@@ -2,6 +2,11 @@ import { Client } from '.prisma/client'
 import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import {
+  REDIS_CLIENT_KEY_PREFIX,
+  REDIS_DOMAIN_KEY_PREFIX,
+  REDIS_LOGOUT_KEY_PREFIX,
+} from '../../../../common/constants'
+import {
   ClientParamsWithDomainId,
   ClientParamsWithId,
 } from '../../../../types/server/routes/api/domains/clients-routes-handler'
@@ -93,7 +98,7 @@ const clientsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       onRequest: [fastify.authenticate],
     },
     async (request, reply) => {
-      const { log, prisma } = fastify
+      const { log, prisma, redis, config } = fastify
       const { dev } = request
       log.debug({ dev })
       const { id, domainId } = request.params
@@ -106,8 +111,23 @@ const clientsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
         return replyNotFound(entityName, reply)
       }
       await prisma.client.delete({ where: { id: client.id } })
+      const redisKey = `${REDIS_LOGOUT_KEY_PREFIX}${REDIS_DOMAIN_KEY_PREFIX}${client.domainId}:${REDIS_CLIENT_KEY_PREFIX}${client.id}`
+      const redisValue = `${client.id}`
+      redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
       reply.status(204)
       return
+    },
+  )
+  fastify.get<{ Params: ClientParamsWithId }>(
+    '/me',
+    {
+      onRequest: [fastify.authenticateClient],
+    },
+    async (request: FastifyRequest<{ Params: ClientParamsWithId }>, reply) => {
+      const { log } = fastify
+      const { client } = request
+      log.debug({ client })
+      return client
     },
   )
   return Promise.resolve()

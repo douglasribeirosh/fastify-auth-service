@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import { e2e } from 'pactum'
-import { string } from 'pactum-matchers'
-import { insertDomain } from '../../utils/test-case'
+import { int, string } from 'pactum-matchers'
+import { insertClient, insertDomain, loginClient } from '../../utils/test-case'
 import { getCurrentTestName, insertDev, login, registerHooks } from '../../utils/test-case'
 
 describe('backend tests', () => {
@@ -214,6 +214,58 @@ describe('backend tests', () => {
           // Then
           .expectStatus(404)
           .expectJson({ code: 404, error: 'Client not found' })
+          .toss()
+        testCase.cleanup()
+      })
+      test('logged in client should be logged out after DELETE /api/domains/:domainId/clients/:id', async () => {
+        //Given
+        const dev = await insertDev(true)
+        const domain = await insertDomain(dev.id)
+        const { id: domainId } = domain
+        const client = await insertClient(domainId)
+        const testCase = e2e(getCurrentTestName())
+        await login(testCase)
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
+        await testCase
+          .step('GET /api/domains/:domainId/clients/me')
+          .spec()
+          // When
+          .get('/api/domains/{domainId}/clients/me')
+          .withPathParams('domainId', domainId)
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
+          // Then
+          .expectStatus(200)
+          .expectJsonMatchStrict({
+            id: client.id,
+            domainId: domainId,
+            iat: int(),
+          })
+          .toss()
+        await testCase
+          .step('DELETE /api/domains/:domainId/clients/:id')
+          .spec()
+          // When
+          .withHeaders('Authorization', `Bearer $S{Token}`)
+          .delete('/api/domains/{domainId}/clients/{id}')
+          .withPathParams('domainId', domainId)
+          .withPathParams('id', client.id)
+          // Then
+          .expectStatus(204)
+          .expectBody('')
+          .toss()
+        await testCase
+          .step('GET /api/domains/:domainId/clients/me')
+          .spec()
+          // When
+          .get('/api/domains/{domainId}/clients/me')
+          .withPathParams('domainId', domainId)
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
+          // Then
+          .expectStatus(401)
+          .expectJsonMatchStrict({
+            code: 401,
+            error: 'Unauthorized',
+          })
           .toss()
         testCase.cleanup()
       })
