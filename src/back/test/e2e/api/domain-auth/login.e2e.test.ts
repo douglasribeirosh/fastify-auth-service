@@ -60,6 +60,20 @@ describe('backend tests', () => {
           .expectStatus(204)
           .expectBody('')
           .toss()
+        await testCase
+          .step('GET /api/domain-auth/whoami')
+          .spec()
+          // When
+          .get('/api/domain-auth/whoami')
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
+          .withHeaders('Authorization', `Bearer $S{Token}`)
+          // Then
+          .expectStatus(401)
+          .expectBody({
+            code: 401,
+            error: 'Unauthorized',
+          })
+          .toss()
         testCase.cleanup()
       })
       test('should respond 401 for POST /api/domain-auth/login with unauthorized data', async () => {
