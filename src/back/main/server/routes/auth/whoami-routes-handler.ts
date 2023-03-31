@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from 'fastify'
-const usersRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
+const whoamiRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.get(
-    '/me',
+    '/',
     {
       onRequest: [fastify.authenticate],
     },
@@ -15,4 +15,4 @@ const usersRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   return Promise.resolve()
 }
 
-export default usersRoutesHandler
+export default whoamiRoutesHandler

@@ -3,17 +3,17 @@ import { int, string, uuid } from 'pactum-matchers'
 import { getCurrentTestName, insertDev, registerHooks } from '../utils/test-case'
 
 describe('backend tests', () => {
-  describe('backend server /api/devs e2e tests', () => {
-    describe('/api/devs', () => {
+  describe('backend server /auth e2e tests', () => {
+    describe('/auth', () => {
       registerHooks()
-      test('should respond unauthorized for GET /api/devs/me', async () => {
+      test('should respond unauthorized for GET /auth/whoami', async () => {
         //Given
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('GET /api/devs/me')
+          .step('GET /auth/whoami')
           .spec()
           // When
-          .get('/api/devs/me')
+          .get('/auth/whoami')
           // Then
           .expectStatus(401)
           .expectJson({
@@ -25,7 +25,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond dev for GET /api/devs/me with Authorization and Unauthorized after POST /auth/logout', async () => {
+      test('should respond dev for GET /auth/whoami with Authorization and Unauthorized after POST /auth/logout', async () => {
         //Given
         await insertDev(true)
         const testCase = e2e(getCurrentTestName())
@@ -41,11 +41,11 @@ describe('backend tests', () => {
           .stores('Token', 'token')
           .toss()
         await testCase
-          .step('GET /api/devs/me')
+          .step('GET /auth/whoami')
           .spec()
           // When
           .withHeaders('Authorization', `Bearer $S{Token}`)
-          .get('/api/devs/me')
+          .get('/auth/whoami')
           // Then
           .expectStatus(200)
           .expectJsonMatch({
@@ -65,10 +65,10 @@ describe('backend tests', () => {
           .expectBody('')
           .toss()
         await testCase
-          .step('GET /api/devs/me')
+          .step('GET /auth/whoami')
           .spec()
           // When
-          .get('/api/devs/me')
+          .get('/auth/whoami')
           .withHeaders('Authorization', `Bearer $S{Token}`)
           // Then
           .expectStatus(401)

@@ -118,18 +118,6 @@ const clientsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
       return
     },
   )
-  fastify.get<{ Params: ClientParamsWithId }>(
-    '/me',
-    {
-      onRequest: [fastify.authenticateClient],
-    },
-    async (request: FastifyRequest<{ Params: ClientParamsWithId }>, reply) => {
-      const { log } = fastify
-      const { client } = request
-      log.debug({ client })
-      return client
-    },
-  )
   return Promise.resolve()
 }
 
