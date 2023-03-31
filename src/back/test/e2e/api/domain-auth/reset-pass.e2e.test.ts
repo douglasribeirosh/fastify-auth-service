@@ -1,5 +1,11 @@
 import { e2e } from 'pactum'
-import { insertDomain, insertUser, insertUserWithData } from '../../utils/test-case'
+import {
+  insertClient,
+  insertDomain,
+  insertUser,
+  insertUserWithData,
+  loginClient,
+} from '../../utils/test-case'
 import { getCurrentTestName, insertDev, registerHooks } from '../../utils/test-case'
 
 describe('backend tests', () => {
@@ -11,15 +17,18 @@ describe('backend tests', () => {
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
+        const client = await insertClient(domainId)
         await insertUser(domainId)
         await insertUserWithData({ domainId, email: 'name1@less.com' })
         await insertUserWithData({ domainId, email: 'name2@less.com', name: 'name2' })
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/reset-pass')
           .spec()
           // When
           .post('/api/domain-auth/reset-pass')
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ domainId, email: 'name@less.com' })
           // Then
           .expectStatus(204)
@@ -30,6 +39,7 @@ describe('backend tests', () => {
           .spec()
           // When
           .post('/api/domain-auth/reset-pass')
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ domainId, email: 'name1@less.com' })
           // Then
           .expectStatus(204)
@@ -40,6 +50,7 @@ describe('backend tests', () => {
           .spec()
           // When
           .post('/api/domain-auth/reset-pass')
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ domainId, email: 'name2@less.com' })
           // Then
           .expectStatus(204)
@@ -48,13 +59,19 @@ describe('backend tests', () => {
         testCase.cleanup()
       })
       test('should respond 400 for POST /api/domain-auth/reset-pass with invalid email', async () => {
+        const dev = await insertDev()
+        const domain = await insertDomain(dev.id)
+        const { id: domainId } = domain
+        const client = await insertClient(domainId)
         //Given
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/reset-pass')
           .spec()
           // When
           .post('/api/domain-auth/reset-pass')
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ email: 'name' })
           // Then
           .expectStatus(400)
@@ -62,13 +79,6 @@ describe('backend tests', () => {
             code: 400,
             error: {
               issues: [
-                {
-                  code: 'invalid_type',
-                  expected: 'string',
-                  message: 'Required',
-                  path: ['domainId'],
-                  received: 'undefined',
-                },
                 {
                   code: 'invalid_string',
                   message: 'Invalid email',
@@ -87,13 +97,16 @@ describe('backend tests', () => {
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
+        const client = await insertClient(domainId)
         await insertUser(domainId)
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/reset-pass')
           .spec()
           // When
           .post('/api/domain-auth/reset-pass')
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ domainId, email: 'anothername@less.com' })
           // Then
           .expectStatus(404)
