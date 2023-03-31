@@ -5,7 +5,6 @@ import { REDIS_CONFIRM_KEY_PREFIX, REDIS_DOMAIN_KEY_PREFIX } from '../../../../c
 import { replyRequestValidationError } from '../../../errors/httpErrors'
 
 const PostBodyZ = z.object({
-  domainId: z.string().nonempty(),
   code: z.string(),
   password: z.string(),
   confirmPassword: z.string(),
@@ -18,28 +17,35 @@ const confirmRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{
     Params: ParamsType
     Body: PostBody
-  }>('/:key', async (request, reply) => {
-    const { log, prisma } = fastify
-    const validation = PostBodyZ.safeParse(request.body)
-    if (!validation.success) {
-      return replyRequestValidationError(validation.error, reply)
-    }
-    const { password, confirmPassword, domainId } = request.body
-    const { code } = request.body
-    const { key } = request.params
-    const { redis } = fastify
-    const userId = await redis.get(
-      `${REDIS_DOMAIN_KEY_PREFIX}${domainId}:${REDIS_CONFIRM_KEY_PREFIX}${key}#${code}`,
-    )
-    log.debug({ key, code, userId })
-    if (password !== confirmPassword || !userId) {
-      return replyRequestValidationError('Error when confirming password or code', reply)
-    }
-    const passwordHash = await hash(password, 10)
-    await prisma.user.update({ where: { id: userId }, data: { passwordHash } })
-    void reply.status(204)
-    return
-  })
+  }>(
+    '/:key',
+    {
+      onRequest: [fastify.authenticateClient],
+    },
+    async (request, reply) => {
+      const { log, prisma } = fastify
+      const validation = PostBodyZ.safeParse(request.body)
+      if (!validation.success) {
+        return replyRequestValidationError(validation.error, reply)
+      }
+      const { domainId } = request.client
+      const { password, confirmPassword } = request.body
+      const { code } = request.body
+      const { key } = request.params
+      const { redis } = fastify
+      const userId = await redis.get(
+        `${REDIS_DOMAIN_KEY_PREFIX}${domainId}:${REDIS_CONFIRM_KEY_PREFIX}${key}#${code}`,
+      )
+      log.debug({ key, code, userId })
+      if (password !== confirmPassword || !userId) {
+        return replyRequestValidationError('Error when confirming password or code', reply)
+      }
+      const passwordHash = await hash(password, 10)
+      await prisma.user.update({ where: { id: userId }, data: { passwordHash } })
+      void reply.status(204)
+      return
+    },
+  )
   return Promise.resolve()
 }
 

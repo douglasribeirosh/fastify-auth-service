@@ -27,7 +27,7 @@ const authenticateClient: preHandlerAsyncHookHandler = async function (
       authorizationClientValue,
     )
     if (!client) {
-      replyUnauthorizedError(reply)
+      await replyUnauthorizedError(reply)
       return
     }
     // TODO: Add client token to blacklist when deleting token

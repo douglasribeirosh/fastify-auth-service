@@ -7,9 +7,11 @@ import {
 import {
   getCurrentServer,
   getCurrentTestName,
+  insertClient,
   insertDev,
   insertDomain,
   insertUser,
+  loginClient,
   registerHooks,
 } from '../../utils/test-case'
 
@@ -22,6 +24,7 @@ describe('backend tests', () => {
         const dev = await insertDev(false)
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
+        const client = await insertClient(domainId)
         const user = await insertUser(domainId)
         const randomCode = Math.trunc(Math.random() * 1000000).toString()
         const randomKey = randomUUID()
@@ -30,14 +33,15 @@ describe('backend tests', () => {
         redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
         //Given
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/confirm/:key')
           .spec()
           // When
           .post('/api/domain-auth/confirm/{key}')
           .withPathParams('key', randomKey)
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({
-            domainId,
             code: randomCode,
             password: 'password',
             confirmPassword: 'password',
@@ -54,6 +58,7 @@ describe('backend tests', () => {
         const dev = await insertDev(false)
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
+        const client = await insertClient(domainId)
         const user = await insertUser(domainId)
         const randomCode = Math.trunc(Math.random() * 1000000).toString()
         const randomKey = randomUUID()
@@ -62,14 +67,15 @@ describe('backend tests', () => {
         redis.setEx(redisKey, config.redisExpireSeconds, redisValue)
         //Given
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/confirm/:key')
           .spec()
           // When
           .post('/api/domain-auth/confirm/{key}')
           .withPathParams('key', randomKey)
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({
-            domainId,
             code: randomCode,
             password: 'password',
             confirmPassword: 'passwor',
@@ -81,22 +87,40 @@ describe('backend tests', () => {
         testCase.cleanup()
         redis.del(randomKey)
       })
-      test('should respond 400 for POST /api/domain-auth/confirm/:key with invalid payload', async () => {
+      test('should respond 401 for POST /api/domain-auth/confirm/:key without client being logged in', async () => {
         const randomKey = randomUUID()
         //Given
         const testCase = e2e(getCurrentTestName())
         const expectedError = {
+          code: 401,
+          error: 'Unauthorized',
+        }
+        await testCase
+          .step('POST /api/domain-auth/confirm/:key')
+          .spec()
+          // When
+          .post('/api/domain-auth/confirm/{key}')
+          .withPathParams('key', randomKey)
+          .withJson({})
+          // Then
+          .expectStatus(401)
+          .expectJson(expectedError)
+          .toss()
+        testCase.cleanup()
+      })
+      test('should respond 400 for POST /api/domain-auth/confirm/:key with invalid payload', async () => {
+        const dev = await insertDev(false)
+        const domain = await insertDomain(dev.id)
+        const { id: domainId } = domain
+        const client = await insertClient(domainId)
+        const randomKey = randomUUID()
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
+        const expectedError = {
           code: 400,
           error: {
             issues: [
-              {
-                code: 'invalid_type',
-                expected: 'string',
-                message: 'Required',
-
-                path: ['domainId'],
-                received: 'undefined',
-              },
               {
                 code: 'invalid_type',
                 expected: 'string',
@@ -128,6 +152,7 @@ describe('backend tests', () => {
           // When
           .post('/api/domain-auth/confirm/{key}')
           .withPathParams('key', randomKey)
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({})
           // Then
           .expectStatus(400)

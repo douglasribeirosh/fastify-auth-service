@@ -16,10 +16,10 @@ const replyRequestValidationError = (err: string | z.ZodError, reply: FastifyRep
   return error
 }
 
-const replyUnauthorizedError = (reply: FastifyReply) => {
+const replyUnauthorizedError = async (reply: FastifyReply) => {
   const error = { code: 401, error: 'Unauthorized' }
   reply.code(error.code)
-  return error
+  await reply.send(error)
 }
 
 export { replyNotFound, replyRequestValidationError, replyUnauthorizedError }
