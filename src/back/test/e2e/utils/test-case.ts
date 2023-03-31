@@ -107,12 +107,28 @@ const login = async (testCase: E2E) => {
     .toss()
 }
 
+const loginClient = async (
+  testCase: E2E,
+  data: { domainId: string; id: string; secret: string },
+) => {
+  await testCase
+    .step('POST /api/client-auth/login')
+    .spec()
+    .post('/api/client-auth/login')
+    .withJson(data)
+    // Then
+    .expectStatus(200)
+    .stores('ClientToken', 'token')
+    .toss()
+}
+
 export {
   getCurrentServer,
   getCurrentTestName,
   registerHooks,
   insertDev,
   login,
+  loginClient,
   insertDomain,
   insertClient,
   insertUser,

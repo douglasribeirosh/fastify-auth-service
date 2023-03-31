@@ -1,5 +1,12 @@
 import { e2e } from 'pactum'
-import { getCurrentTestName, insertDev, insertDomain, registerHooks } from '../../utils/test-case'
+import {
+  getCurrentTestName,
+  insertClient,
+  insertDev,
+  insertDomain,
+  loginClient,
+  registerHooks,
+} from '../../utils/test-case'
 
 describe('backend tests', () => {
   describe('backend server /api/domain-auth e2e tests', () => {
@@ -10,13 +17,16 @@ describe('backend tests', () => {
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
+        const client = await insertClient(domainId)
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/register')
           .spec()
           // When
           .post('/api/domain-auth/register')
-          .withJson({ email: 'name@less.com', domainId })
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
+          .withJson({ email: 'name@less.com' })
           // Then
           .expectBody('')
           .expectStatus(204)
@@ -26,7 +36,8 @@ describe('backend tests', () => {
           .spec()
           // When
           .post('/api/domain-auth/register')
-          .withJson({ email: 'name@less.com', domainId })
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
+          .withJson({ email: 'name@less.com' })
           // Then
           .expectStatus(400)
           .expectJson({
@@ -41,13 +52,16 @@ describe('backend tests', () => {
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
+        const client = await insertClient(domainId)
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/register')
           .spec()
           // When
           .post('/api/domain-auth/register')
-          .withJson({ namePrefix: 'Me.', name: 'Name Less', email: 'name@less.com', domainId })
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
+          .withJson({ namePrefix: 'Me.', name: 'Name Less', email: 'name@less.com' })
           // Then
           .expectBody('')
           .expectStatus(204)
@@ -59,12 +73,15 @@ describe('backend tests', () => {
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
+        const client = await insertClient(domainId)
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/register')
           .spec()
           // When
           .post('/api/domain-auth/register')
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ name: 'Name Less', email: 'name@less.com', domainId })
           // Then
           .expectBody('')
@@ -77,12 +94,15 @@ describe('backend tests', () => {
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
+        const client = await insertClient(domainId)
         const testCase = e2e(getCurrentTestName())
+        await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
           .step('POST /api/domain-auth/register')
           .spec()
           // When
           .post('/api/domain-auth/register')
+          .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ email: 'name', domainId })
           // Then
           .expectStatus(400)

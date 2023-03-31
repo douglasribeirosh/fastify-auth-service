@@ -9,6 +9,7 @@ import { Prisma, PrismaClient } from '@prisma/client'
 import { createClient } from 'redis'
 import { RedisClientType } from 'redis'
 import { authenticatePlugin } from '../fastify-plugins/authenticate'
+import { authenticateClientPlugin } from '../fastify-plugins/authenticateClient'
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -21,9 +22,11 @@ declare module 'fastify' {
     >
     redis: RedisClientType
     authenticate: onRequestHookHandler
+    authenticateClient: onRequestHookHandler
   }
   export interface FastifyRequest {
     dev: { id: string; username: string }
+    client: { id: string; domainId: string }
   }
 }
 
@@ -62,6 +65,7 @@ const buildServer = async (config: Config) => {
     secret: config.jwtSecret,
   })
   fastifyServer.register(authenticatePlugin)
+  fastifyServer.register(authenticateClientPlugin)
   return { fastifyServer }
 }
 

@@ -13,8 +13,8 @@ const authenticate: preHandlerAsyncHookHandler = async function (
   reply: FastifyReply,
 ) {
   try {
-    const dev: { id: string; username: string; iat: number } = await request.jwtVerify()
     const { authorization } = request.headers
+    const dev: { id: string; username: string; iat: number } = await request.jwtVerify()
     const { redis } = this
     const redisValue = await redis.get(`${REDIS_LOGOUT_KEY_PREFIX}${dev.id}#${authorization}`)
     if (redisValue) {
