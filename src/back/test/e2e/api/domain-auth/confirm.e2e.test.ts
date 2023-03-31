@@ -50,7 +50,6 @@ describe('backend tests', () => {
           .expectStatus(204)
           .expectBody('')
           .toss()
-        testCase.cleanup()
         redis.del(randomKey)
       })
       test('should respond Error for POST /api/domain-auth/confirm/:key with not matching confirmPassword', async () => {
@@ -105,6 +104,24 @@ describe('backend tests', () => {
           // Then
           .expectStatus(401)
           .expectJson(expectedError)
+          .toss()
+        const expectedError1 = {
+          code: 'FST_JWT_AUTHORIZATION_TOKEN_INVALID',
+          error: 'Unauthorized',
+          message: 'Authorization token is invalid: The token is malformed.',
+          statusCode: 401,
+        }
+        await testCase
+          .step('POST /api/domain-auth/confirm/:key')
+          .spec()
+          // When
+          .post('/api/domain-auth/confirm/{key}')
+          .withPathParams('key', randomKey)
+          .withHeaders('AuthorizationClient', `Bearer wrongToken`)
+          .withJson({})
+          // Then
+          .expectStatus(401)
+          .expectJson(expectedError1)
           .toss()
         testCase.cleanup()
       })

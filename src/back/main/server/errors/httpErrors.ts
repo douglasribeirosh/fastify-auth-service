@@ -20,6 +20,7 @@ const replyUnauthorizedError = async (reply: FastifyReply) => {
   const error = { code: 401, error: 'Unauthorized' }
   reply.code(error.code)
   await reply.send(error)
+  return error
 }
 
 export { replyNotFound, replyRequestValidationError, replyUnauthorizedError }

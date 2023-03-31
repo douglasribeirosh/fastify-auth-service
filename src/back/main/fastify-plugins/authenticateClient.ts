@@ -1,3 +1,4 @@
+import { JWT } from '@fastify/jwt'
 import type {
   FastifyInstance,
   FastifyReply,
@@ -8,28 +9,32 @@ import fastifyPlugin from 'fastify-plugin'
 import { REDIS_LOGOUT_KEY_PREFIX } from '../common/constants'
 import { replyUnauthorizedError } from '../server/errors/httpErrors'
 
+const decode = async (token: string, jwt: JWT, reply: FastifyReply) => {
+  const decoded: { id: string; domainId: string } | null = await jwt.decode(
+    token.replace('Bearer ', ''),
+  )
+  if (!decoded) {
+    throw await replyUnauthorizedError(reply)
+  }
+  return decoded
+}
+
 const authenticateClient: preHandlerAsyncHookHandler = async function (
   this: FastifyInstance,
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
   try {
-    const { authorizationclient } = request.headers
-    let authorizationClientValue = Array.isArray(authorizationclient)
-      ? authorizationclient[0]
-      : authorizationclient
-    if (!authorizationClientValue || !authorizationClientValue.startsWith('Bearer ')) {
+    const { authorizationclient } = request.headers as { authorizationclient: string | undefined }
+    if (!authorizationclient || !authorizationclient.startsWith('Bearer ')) {
       replyUnauthorizedError(reply)
       return
     }
-    authorizationClientValue = authorizationClientValue.replace('Bearer ', '')
-    const client: { id: string; domainId: string } | null = await this.jwt.decode(
-      authorizationClientValue,
+    const client: { id: string; domainId: string } = await decode(
+      authorizationclient.replace('Bearer ', ''),
+      this.jwt,
+      reply,
     )
-    if (!client) {
-      await replyUnauthorizedError(reply)
-      return
-    }
     // TODO: Add client token to blacklist when deleting token
     // const { redis } = this
     // const redisValue = await redis.get(`${REDIS_LOGOUT_KEY_PREFIX}${dev.id}#${authorization}`)
@@ -48,4 +53,4 @@ const authenticateClientPlugin = fastifyPlugin((fastify, _options?) => {
   return Promise.resolve()
 })
 
-export { authenticateClientPlugin }
+export { authenticateClientPlugin, decode }
