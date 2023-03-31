@@ -8,8 +8,9 @@ import { Mailer } from '../types/mailer'
 import { Prisma, PrismaClient } from '@prisma/client'
 import { createClient } from 'redis'
 import { RedisClientType } from 'redis'
-import { authenticatePlugin } from '../fastify-plugins/authenticate'
+import { authenticateDevPlugin } from '../fastify-plugins/authenticateDev'
 import { authenticateClientPlugin } from '../fastify-plugins/authenticateClient'
+import { authenticateUserPlugin } from '../fastify-plugins/authenticateUser'
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -21,12 +22,14 @@ declare module 'fastify' {
       Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
     >
     redis: RedisClientType
-    authenticate: onRequestHookHandler
+    authenticateDev: onRequestHookHandler
     authenticateClient: onRequestHookHandler
+    authenticateUser: onRequestHookHandler
   }
   export interface FastifyRequest {
     dev: { id: string; username: string }
     client: { id: string; domainId: string }
+    authorizedUser: { id: string; nickname: string }
   }
 }
 
@@ -64,8 +67,9 @@ const buildServer = async (config: Config) => {
   fastifyServer.register(jwt, {
     secret: config.jwtSecret,
   })
-  fastifyServer.register(authenticatePlugin)
+  fastifyServer.register(authenticateDevPlugin)
   fastifyServer.register(authenticateClientPlugin)
+  fastifyServer.register(authenticateUserPlugin)
   return { fastifyServer }
 }
 

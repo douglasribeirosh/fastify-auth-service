@@ -27,7 +27,7 @@ const clientsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Params: ClientParamsWithDomainId; Body: ClientPostBody }>(
     '/',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (
       request: FastifyRequest<{ Params: ClientParamsWithDomainId; Body: ClientPostBody }>,
@@ -54,7 +54,7 @@ const clientsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.get<{ Params: ClientParamsWithDomainId }>(
     '/',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (request, reply) => {
       const { log, prisma } = fastify
@@ -73,7 +73,7 @@ const clientsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.get<{ Params: ClientParamsWithId }>(
     '/:id',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (request: FastifyRequest<{ Params: ClientParamsWithId }>, reply) => {
       const { log, prisma } = fastify
@@ -95,7 +95,7 @@ const clientsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.delete<{ Params: ClientParamsWithId }>(
     '/:id',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (request, reply) => {
       const { log, prisma, redis, config } = fastify

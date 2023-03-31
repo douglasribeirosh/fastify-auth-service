@@ -3,7 +3,7 @@ const whoamiRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.get(
     '/',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (request: FastifyRequest) => {
       const { log } = fastify

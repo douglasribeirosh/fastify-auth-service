@@ -11,7 +11,7 @@ const logoutRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: PostBody }>(
     '/',
     {
-      onRequest: [fastify.authenticateClient],
+      onRequest: [fastify.authenticateClient, fastify.authenticateUser],
     },
     async (request, reply) => {
       const { log, config, redis } = fastify
@@ -20,9 +20,9 @@ const logoutRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
         return replyRequestValidationError('Error when confirming password or code', reply)
       }
       const { domainId } = request.client
-      const { authorization } = request.headers
-      const user: { id: string } = await request.jwtVerify()
+      const { user } = request
       log.debug({ user })
+      const { authorization } = request.headers
       const redisKey = `${REDIS_DOMAIN_KEY_PREFIX}${domainId}:${REDIS_LOGOUT_KEY_PREFIX}${user.id}#${authorization}`
       const redisValue = `${authorization}`
       redis.setEx(redisKey, config.redisExpireSeconds, redisValue)

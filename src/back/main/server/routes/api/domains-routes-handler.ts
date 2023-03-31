@@ -30,7 +30,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: DomainPostBody }>(
     '/',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (request: FastifyRequest<{ Body: DomainPostBody }>, reply) => {
       const { log, prisma } = fastify
@@ -50,7 +50,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.get(
     '/',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (request: FastifyRequest) => {
       const { log, prisma } = fastify
@@ -64,7 +64,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.get<{ Params: DomainParamsWithId }>(
     '/:id',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (request: FastifyRequest<{ Params: DomainParamsWithId }>, reply) => {
       const { log, prisma } = fastify
@@ -85,7 +85,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   }>(
     '/:id',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (
       request: FastifyRequest<{
@@ -115,7 +115,7 @@ const domainsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.delete<{ Params: DomainParamsWithId }>(
     '/:id',
     {
-      onRequest: [fastify.authenticate],
+      onRequest: [fastify.authenticateDev],
     },
     async (request, reply) => {
       const { log, prisma } = fastify

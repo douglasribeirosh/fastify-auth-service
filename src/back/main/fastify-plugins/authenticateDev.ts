@@ -7,7 +7,7 @@ import type {
 import fastifyPlugin from 'fastify-plugin'
 import { REDIS_LOGOUT_KEY_PREFIX } from '../common/constants'
 
-const authenticate: preHandlerAsyncHookHandler = async function (
+const authenticateDev: preHandlerAsyncHookHandler = async function (
   this: FastifyInstance,
   request: FastifyRequest,
   reply: FastifyReply,
@@ -27,9 +27,9 @@ const authenticate: preHandlerAsyncHookHandler = async function (
   }
 }
 
-const authenticatePlugin = fastifyPlugin((fastify, _options?) => {
-  fastify.decorate('authenticate', authenticate)
+const authenticateDevPlugin = fastifyPlugin((fastify, _options?) => {
+  fastify.decorate('authenticateDev', authenticateDev)
   return Promise.resolve()
 })
 
-export { authenticatePlugin }
+export { authenticateDevPlugin }
