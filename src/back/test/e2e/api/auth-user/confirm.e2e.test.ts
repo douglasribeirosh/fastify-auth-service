@@ -16,10 +16,10 @@ import {
 } from '../../utils/test-case'
 
 describe('backend tests', () => {
-  describe('backend server /api/domain-auth e2e tests', () => {
-    describe('/api/domain-auth/confirm', () => {
+  describe('backend server /api/auth-user e2e tests', () => {
+    describe('/api/auth-user/confirm', () => {
       registerHooks()
-      test('should respond 204 for POST /api/domain-auth/confirm/:key with data', async () => {
+      test('should respond 204 for POST /api/auth-user/confirm/:key with data', async () => {
         const { redis, config } = getCurrentServer()?.fastifyServer
         const dev = await insertDev(false)
         const domain = await insertDomain(dev.id)
@@ -35,10 +35,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/confirm/:key')
+          .step('POST /api/auth-user/confirm/:key')
           .spec()
           // When
-          .post('/api/domain-auth/confirm/{key}')
+          .post('/api/auth-user/confirm/{key}')
           .withPathParams('key', randomKey)
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({
@@ -52,7 +52,7 @@ describe('backend tests', () => {
           .toss()
         redis.del(randomKey)
       })
-      test('should respond Error for POST /api/domain-auth/confirm/:key with not matching confirmPassword', async () => {
+      test('should respond Error for POST /api/auth-user/confirm/:key with not matching confirmPassword', async () => {
         const { redis, config } = getCurrentServer()?.fastifyServer
         const dev = await insertDev(false)
         const domain = await insertDomain(dev.id)
@@ -68,10 +68,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/confirm/:key')
+          .step('POST /api/auth-user/confirm/:key')
           .spec()
           // When
-          .post('/api/domain-auth/confirm/{key}')
+          .post('/api/auth-user/confirm/{key}')
           .withPathParams('key', randomKey)
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({
@@ -86,7 +86,7 @@ describe('backend tests', () => {
         testCase.cleanup()
         redis.del(randomKey)
       })
-      test('should respond 401 for POST /api/domain-auth/confirm/:key without client being logged in', async () => {
+      test('should respond 401 for POST /api/auth-user/confirm/:key without client being logged in', async () => {
         const randomKey = randomUUID()
         //Given
         const testCase = e2e(getCurrentTestName())
@@ -95,10 +95,10 @@ describe('backend tests', () => {
           error: 'Unauthorized',
         }
         await testCase
-          .step('POST /api/domain-auth/confirm/:key')
+          .step('POST /api/auth-user/confirm/:key')
           .spec()
           // When
-          .post('/api/domain-auth/confirm/{key}')
+          .post('/api/auth-user/confirm/{key}')
           .withPathParams('key', randomKey)
           .withJson({})
           // Then
@@ -112,10 +112,10 @@ describe('backend tests', () => {
           statusCode: 401,
         }
         await testCase
-          .step('POST /api/domain-auth/confirm/:key')
+          .step('POST /api/auth-user/confirm/:key')
           .spec()
           // When
-          .post('/api/domain-auth/confirm/{key}')
+          .post('/api/auth-user/confirm/{key}')
           .withPathParams('key', randomKey)
           .withHeaders('AuthorizationClient', `Bearer wrongToken`)
           .withJson({})
@@ -125,7 +125,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 400 for POST /api/domain-auth/confirm/:key with invalid payload', async () => {
+      test('should respond 400 for POST /api/auth-user/confirm/:key with invalid payload', async () => {
         const dev = await insertDev(false)
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
@@ -164,10 +164,10 @@ describe('backend tests', () => {
           },
         }
         await testCase
-          .step('POST /api/domain-auth/confirm/:key')
+          .step('POST /api/auth-user/confirm/:key')
           .spec()
           // When
-          .post('/api/domain-auth/confirm/{key}')
+          .post('/api/auth-user/confirm/{key}')
           .withPathParams('key', randomKey)
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({})

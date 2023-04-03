@@ -11,10 +11,10 @@ import {
 } from '../../utils/test-case'
 
 describe('backend tests', () => {
-  describe('backend server /api/domain-auth e2e tests', () => {
-    describe('/api/domain-auth/login', () => {
+  describe('backend server /api/auth-user e2e tests', () => {
+    describe('/api/auth-user/login', () => {
       registerHooks()
-      test('should respond token for POST /api/domain-auth/login and be able to POST /api/domain-auth/logout with token', async () => {
+      test('should respond token for POST /api/auth-user/login and be able to POST /api/auth-user/logout with token', async () => {
         //Given
         const dev = await insertDev(true)
         const domain = await insertDomain(dev.id)
@@ -24,10 +24,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/login')
+          .step('POST /api/auth-user/login')
           .spec()
           // When
-          .post('/api/domain-auth/login')
+          .post('/api/auth-user/login')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ email: 'name@less.com', password: 'Us3rP@ssw0rd' })
           // Then
@@ -38,10 +38,10 @@ describe('backend tests', () => {
           .stores('Token', 'token')
           .toss()
         await testCase
-          .step('POST /api/domain-auth/logout')
+          .step('POST /api/auth-user/logout')
           .spec()
           // When
-          .post('/api/domain-auth/logout')
+          .post('/api/auth-user/logout')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withHeaders('Authorization', `Bearer $S{Token}`)
           .withJson({ domainId })
@@ -49,10 +49,10 @@ describe('backend tests', () => {
           .expectStatus(400)
           .toss()
         await testCase
-          .step('POST /api/domain-auth/logout')
+          .step('POST /api/auth-user/logout')
           .spec()
           // When
-          .post('/api/domain-auth/logout')
+          .post('/api/auth-user/logout')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withHeaders('Authorization', `Bearer $S{Token}`)
           .withJson({})
@@ -61,10 +61,10 @@ describe('backend tests', () => {
           .expectBody('')
           .toss()
         await testCase
-          .step('GET /api/domain-auth/whoami')
+          .step('GET /api/auth-user/whoami')
           .spec()
           // When
-          .get('/api/domain-auth/whoami')
+          .get('/api/auth-user/whoami')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withHeaders('Authorization', `Bearer $S{Token}`)
           // Then
@@ -76,7 +76,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 401 for POST /api/domain-auth/login with unauthorized data', async () => {
+      test('should respond 401 for POST /api/auth-user/login with unauthorized data', async () => {
         //Given
         const dev = await insertDev(true)
         const domain = await insertDomain(dev.id)
@@ -85,10 +85,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/login with invalid data')
+          .step('POST /api/auth-user/login with invalid data')
           .spec()
           // When
-          .post('/api/domain-auth/login')
+          .post('/api/auth-user/login')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ domainId, email: 'name@less.com', password: 'P@ssw0rd' })
           // Then
@@ -100,7 +100,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 400 for POST /api/domain-auth/login with invalid data', async () => {
+      test('should respond 400 for POST /api/auth-user/login with invalid data', async () => {
         //Given
         const dev = await insertDev(true)
         const domain = await insertDomain(dev.id)
@@ -109,10 +109,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/login with invalid data')
+          .step('POST /api/auth-user/login with invalid data')
           .spec()
           // When
-          .post('/api/domain-auth/login')
+          .post('/api/auth-user/login')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ domainId, email: 'name@less.com' })
           // Then

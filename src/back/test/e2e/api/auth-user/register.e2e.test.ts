@@ -9,10 +9,10 @@ import {
 } from '../../utils/test-case'
 
 describe('backend tests', () => {
-  describe('backend server /api/domain-auth e2e tests', () => {
-    describe('/api/domain-auth/register', () => {
+  describe('backend server /api/auth-user e2e tests', () => {
+    describe('/api/auth-user/register', () => {
       registerHooks()
-      test('should respond 204 for POST /api/domain-auth/register with data but Error second time', async () => {
+      test('should respond 204 for POST /api/auth-user/register with data but Error second time', async () => {
         //Given
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
@@ -21,10 +21,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/register')
+          .step('POST /api/auth-user/register')
           .spec()
           // When
-          .post('/api/domain-auth/register')
+          .post('/api/auth-user/register')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ email: 'name@less.com' })
           // Then
@@ -32,10 +32,10 @@ describe('backend tests', () => {
           .expectStatus(204)
           .toss()
         await testCase
-          .step('POST /api/domain-auth/register second time')
+          .step('POST /api/auth-user/register second time')
           .spec()
           // When
-          .post('/api/domain-auth/register')
+          .post('/api/auth-user/register')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ email: 'name@less.com' })
           // Then
@@ -47,7 +47,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 204 for POST /api/domain-auth/register with optionals name and namePrefix for user', async () => {
+      test('should respond 204 for POST /api/auth-user/register with optionals name and namePrefix for user', async () => {
         //Given
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
@@ -56,10 +56,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/register')
+          .step('POST /api/auth-user/register')
           .spec()
           // When
-          .post('/api/domain-auth/register')
+          .post('/api/auth-user/register')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ namePrefix: 'Me.', name: 'Name Less', email: 'name@less.com' })
           // Then
@@ -68,7 +68,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 204 for POST /api/domain-auth/register with optional name for user', async () => {
+      test('should respond 204 for POST /api/auth-user/register with optional name for user', async () => {
         //Given
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
@@ -77,10 +77,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/register')
+          .step('POST /api/auth-user/register')
           .spec()
           // When
-          .post('/api/domain-auth/register')
+          .post('/api/auth-user/register')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ name: 'Name Less', email: 'name@less.com', domainId })
           // Then
@@ -89,7 +89,7 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 400 for POST /api/domain-auth/register with invalid email', async () => {
+      test('should respond 400 for POST /api/auth-user/register with invalid email', async () => {
         //Given
         const dev = await insertDev()
         const domain = await insertDomain(dev.id)
@@ -98,10 +98,10 @@ describe('backend tests', () => {
         const testCase = e2e(getCurrentTestName())
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('POST /api/domain-auth/register')
+          .step('POST /api/auth-user/register')
           .spec()
           // When
-          .post('/api/domain-auth/register')
+          .post('/api/auth-user/register')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({ email: 'name', domainId })
           // Then

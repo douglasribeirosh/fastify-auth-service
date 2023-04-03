@@ -6,7 +6,7 @@ import registerRoutesHandler from './register-routes-handler'
 import resetPassRoutesHandler from './reset-pass-routes-handler'
 import whoamiRoutesHandler from './whoami-routes-handler'
 
-const domainAuthRoutesHandler: FastifyPluginAsync = (fastify) => {
+const authUserRoutesHandler: FastifyPluginAsync = (fastify) => {
   void fastify.register(loginRoutesHandler, { prefix: '/login' })
   void fastify.register(logoutRoutesHandler, { prefix: '/logout' })
   void fastify.register(registerRoutesHandler, { prefix: '/register' })
@@ -16,4 +16,4 @@ const domainAuthRoutesHandler: FastifyPluginAsync = (fastify) => {
   return Promise.resolve()
 }
 
-export default domainAuthRoutesHandler
+export default authUserRoutesHandler

@@ -10,10 +10,10 @@ import {
 } from '../../utils/test-case'
 
 describe('backend tests', () => {
-  describe('backend server /api/client-auth e2e tests', () => {
-    describe('/api/client-auth/login', () => {
+  describe('backend server /api/auth-client e2e tests', () => {
+    describe('/api/auth-client/login', () => {
       registerHooks()
-      test('should respond token for POST /api/client-auth/login', async () => {
+      test('should respond token for POST /api/auth-client/login', async () => {
         //Given
         const dev = await insertDev(true)
         const domain = await insertDomain(dev.id)
@@ -22,10 +22,10 @@ describe('backend tests', () => {
         const { id, secret } = client
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /api/client-auth/login')
+          .step('POST /api/auth-client/login')
           .spec()
           // When
-          .post('/api/client-auth/login')
+          .post('/api/auth-client/login')
           .withJson({ domainId, id, secret })
           // Then
           .expectStatus(200)
@@ -35,17 +35,17 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 401 for POST /api/client-auth/login with unauthorized data', async () => {
+      test('should respond 401 for POST /api/auth-client/login with unauthorized data', async () => {
         //Given
         const dev = await insertDev(true)
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /api/client-auth/login with invalid data')
+          .step('POST /api/auth-client/login with invalid data')
           .spec()
           // When
-          .post('/api/client-auth/login')
+          .post('/api/auth-client/login')
           .withJson({ domainId, id: randomUUID(), secret: randomUUID() })
           // Then
           .expectStatus(401)
@@ -56,17 +56,17 @@ describe('backend tests', () => {
           .toss()
         testCase.cleanup()
       })
-      test('should respond 400 for POST /api/client-auth/login with invalid data', async () => {
+      test('should respond 400 for POST /api/auth-client/login with invalid data', async () => {
         //Given
         const dev = await insertDev(true)
         const domain = await insertDomain(dev.id)
         const { id: domainId } = domain
         const testCase = e2e(getCurrentTestName())
         await testCase
-          .step('POST /api/client-auth/login with invalid data')
+          .step('POST /api/auth-client/login with invalid data')
           .spec()
           // When
-          .post('/api/client-auth/login')
+          .post('/api/auth-client/login')
           .withJson({ domainId, id: randomUUID() })
           // Then
           .expectJson({

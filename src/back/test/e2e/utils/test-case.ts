@@ -112,9 +112,9 @@ const loginClient = async (
   data: { domainId: string; id: string; secret: string },
 ) => {
   await testCase
-    .step('POST /api/client-auth/login')
+    .step('POST /api/auth-client/login')
     .spec()
-    .post('/api/client-auth/login')
+    .post('/api/auth-client/login')
     .withJson(data)
     // Then
     .expectStatus(200)
@@ -124,9 +124,9 @@ const loginClient = async (
 
 const loginUser = async (testCase: E2E) => {
   await testCase
-    .step('POST /api/domain-auth/login')
+    .step('POST /api/auth-user/login')
     .spec()
-    .post('/api/domain-auth/login')
+    .post('/api/auth-user/login')
     .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
     .withJson({ email: 'name@less.com', password: 'Us3rP@ssw0rd' })
     // Then

@@ -13,8 +13,8 @@ import {
 } from '../../utils/test-case'
 
 describe('backend tests', () => {
-  describe('backend server /api/domain-auth e2e tests', () => {
-    describe('GET /api/domain-auth/whoami', () => {
+  describe('backend server /api/auth-user e2e tests', () => {
+    describe('GET /api/auth-user/whoami', () => {
       registerHooks()
       test('GET', async () => {
         //Given
@@ -28,10 +28,10 @@ describe('backend tests', () => {
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await loginUser(testCase)
         await testCase
-          .step('GET /api/domain-auth/whoami')
+          .step('GET /api/auth-user/whoami')
           .spec()
           // When
-          .get('/api/domain-auth/whoami')
+          .get('/api/auth-user/whoami')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withHeaders('Authorization', `Bearer $S{UserToken}`)
           // Then
@@ -43,10 +43,10 @@ describe('backend tests', () => {
           })
           .toss()
         await testCase
-          .step('GET /api/domain-auth/whoami')
+          .step('GET /api/auth-user/whoami')
           .spec()
           // When
-          .get('/api/domain-auth/whoami')
+          .get('/api/auth-user/whoami')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withHeaders('Authorization', `Bearer InvalidToken`)
           // Then

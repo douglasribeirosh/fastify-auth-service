@@ -11,8 +11,8 @@ import {
 } from '../../utils/test-case'
 
 describe('backend tests', () => {
-  describe('backend server /api/client-auth e2e tests', () => {
-    describe('/api/client-auth/whoami', () => {
+  describe('backend server /api/auth-client e2e tests', () => {
+    describe('/api/auth-client/whoami', () => {
       registerHooks()
       test('logged in client should be logged out after DELETE /api/domains/:domainId/clients/:id', async () => {
         //Given
@@ -24,10 +24,10 @@ describe('backend tests', () => {
         await login(testCase)
         await loginClient(testCase, { domainId, id: client.id, secret: client.secret })
         await testCase
-          .step('GET /api/client-auth/whoami')
+          .step('GET /api/auth-client/whoami')
           .spec()
           // When
-          .get('/api/client-auth/whoami')
+          .get('/api/auth-client/whoami')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           // Then
           .expectStatus(200)
@@ -50,10 +50,10 @@ describe('backend tests', () => {
           .expectBody('')
           .toss()
         await testCase
-          .step('GET /api/client-auth/whoami/')
+          .step('GET /api/auth-client/whoami/')
           .spec()
           // When
-          .get('/api/client-auth/whoami/')
+          .get('/api/auth-client/whoami/')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           // Then
           .expectStatus(401)
