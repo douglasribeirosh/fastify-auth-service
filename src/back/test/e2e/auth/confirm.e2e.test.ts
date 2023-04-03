@@ -23,7 +23,7 @@ describe('backend tests', () => {
           // When
           .post('/auth/confirm/{key}')
           .withPathParams('key', randomKey)
-          .withJson({ code: randomCode, password: 'password', confirmPassword: 'password' })
+          .withJson({ code: randomCode, password: 'P4s.w0rd', confirmPassword: 'P4s.w0rd' })
           // Then
           .expectStatus(204)
           .expectBody('')
@@ -47,7 +47,7 @@ describe('backend tests', () => {
           // When
           .post('/auth/confirm/{key}')
           .withPathParams('key', randomKey)
-          .withJson({ code: randomCode, password: 'password', confirmPassword: 'passwor' })
+          .withJson({ code: randomCode, password: 'P4s.w0rd', confirmPassword: 'password' })
           // Then
           .expectStatus(400)
           .expectBody({ code: 400, error: 'Error when confirming password or code' })

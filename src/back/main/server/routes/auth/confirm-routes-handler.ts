@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { hash } from 'bcryptjs'
 import { REDIS_CONFIRM_KEY_PREFIX } from '../../../common/constants'
 import { replyRequestValidationError } from '../../errors/httpErrors'
+import { refineZodPassword } from '../../../utils/string-validation'
 
 const confirmRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{
@@ -12,7 +13,7 @@ const confirmRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
     const { log, prisma } = fastify
     const BodyZ = z.object({
       code: z.string(),
-      password: z.string(),
+      password: refineZodPassword(z.string()),
       confirmPassword: z.string(),
     })
     const validation = BodyZ.safeParse(request.body)

@@ -43,8 +43,8 @@ describe('backend tests', () => {
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({
             code: randomCode,
-            password: 'password',
-            confirmPassword: 'password',
+            password: 'P4s.w0rd',
+            confirmPassword: 'P4s.w0rd',
           })
           // Then
           .expectStatus(204)
@@ -76,8 +76,8 @@ describe('backend tests', () => {
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withJson({
             code: randomCode,
-            password: 'password',
-            confirmPassword: 'passwor',
+            password: 'P4s.w0rd',
+            confirmPassword: 'password',
           })
           // Then
           .expectStatus(400)

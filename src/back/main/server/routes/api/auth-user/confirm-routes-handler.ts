@@ -3,10 +3,11 @@ import { z } from 'zod'
 import { hash } from 'bcryptjs'
 import { REDIS_CONFIRM_KEY_PREFIX, REDIS_DOMAIN_KEY_PREFIX } from '../../../../common/constants'
 import { replyRequestValidationError } from '../../../errors/httpErrors'
+import { refineZodPassword } from '../../../../utils/string-validation'
 
 const PostBodyZ = z.object({
   code: z.string(),
-  password: z.string(),
+  password: refineZodPassword(z.string()),
   confirmPassword: z.string(),
 })
 
