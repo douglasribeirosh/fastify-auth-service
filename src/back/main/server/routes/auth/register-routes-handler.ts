@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { handlePrismaDevDuplicateError } from '../../errors/errorHandlers'
 import { REDIS_CONFIRM_KEY_PREFIX } from '../../../common/constants'
 import { replyRequestValidationError } from '../../errors/httpErrors'
+import { refineZodUsername } from '../../../utils/string-validation'
 
 const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
   fastify.post<{ Body: { name: string; email: string; username: string } }>(
@@ -14,7 +15,7 @@ const registerRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => 
       const BodyZ = z.object({
         name: z.string().nonempty(),
         email: z.string().email(),
-        username: z.string().nonempty(),
+        username: refineZodUsername(z.string()),
       })
       const validation = BodyZ.safeParse(request.body)
       if (!validation.success) {

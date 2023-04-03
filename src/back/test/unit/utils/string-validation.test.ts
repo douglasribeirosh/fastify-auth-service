@@ -5,6 +5,7 @@ import {
   hasMinLenght,
   hasNoWhitespace,
   hasOnlyAscii,
+  hasOnlyLowerCaseCharsAndDigits,
   hasSpecialChar,
   hasUpperCaseChar,
 } from '../../../main/utils/string-validation'
@@ -66,6 +67,23 @@ describe('string-validation', () => {
       Array.from('!"#$%&\'()*+,-./:;<=>?@[]^_`{|}~').forEach((s) => {
         const stringToTest = `a${s}a`
         expect(hasOnlyAscii(stringToTest)).toEqual(true)
+      })
+    })
+  })
+  describe('hasOnlyLowerCaseCharsAndDigits', () => {
+    test('should pass', () => {
+      expect(hasOnlyLowerCaseCharsAndDigits('')).toEqual(true)
+      expect(hasOnlyLowerCaseCharsAndDigits('abcd')).toEqual(true)
+      expect(hasOnlyLowerCaseCharsAndDigits('1234')).toEqual(true)
+      expect(hasOnlyLowerCaseCharsAndDigits('abcd1324')).toEqual(true)
+      expect(hasOnlyLowerCaseCharsAndDigits('1234abcd')).toEqual(true)
+      expect(hasOnlyLowerCaseCharsAndDigits('a1b2c3d4')).toEqual(true)
+      expect(hasOnlyLowerCaseCharsAndDigits('1a2b3c4d')).toEqual(true)
+      expect(hasOnlyLowerCaseCharsAndDigits('é')).toEqual(false)
+      expect(hasOnlyLowerCaseCharsAndDigits('⌣')).toEqual(false)
+      Array.from('!"#$%&\'()*+,-./:;<=>?@[]^_`{|}~').forEach((s) => {
+        const stringToTest = `a${s}a`
+        expect(hasOnlyLowerCaseCharsAndDigits(stringToTest)).toEqual(false)
       })
     })
   })
