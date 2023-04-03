@@ -68,6 +68,7 @@ const insertClient = async (domainId: string) => {
   return await prisma.client.create({
     data: {
       domainId: domainId,
+      name: 'Client',
     },
   })
 }

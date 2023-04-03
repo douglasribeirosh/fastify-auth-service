@@ -33,7 +33,7 @@ describe('backend tests', () => {
           .withHeaders('Authorization', `Bearer $S{Token}`)
           .post('/api/domains/{domainId}/clients')
           .withPathParams('domainId', domainId)
-          .withJson({ key: 'value' })
+          .withJson({ key: 'value', name: 'Client' })
           // Then
           .expectJson({ code: 400, error: expectedErrorForPost })
           .expectStatus(400)
@@ -53,7 +53,7 @@ describe('backend tests', () => {
           // When
           .withHeaders('Authorization', `Bearer $S{Token}`)
           .post('/api/domains/{domainId}/clients')
-          .withJson({})
+          .withJson({ name: 'Client' })
           .withPathParams('domainId', domainId)
           // Then
           .expectJson({ code: 401, error: 'Unauthorized' })
@@ -144,11 +144,12 @@ describe('backend tests', () => {
           .withHeaders('Authorization', `Bearer $S{Token}`)
           .post('/api/domains/{domainId}/clients')
           .withPathParams('domainId', domainId)
-          .withBody({})
+          .withJson({ name: 'Client' })
           // Then
           .expectStatus(200)
           .expectJsonMatchStrict({
             id: string(),
+            name: 'Client',
             secret: string(),
             domainId: domain.id,
             createdAt: string(),
@@ -161,6 +162,7 @@ describe('backend tests', () => {
           .toss()
         const expectedClient = {
           id: `$S{ClientId}`,
+          name: 'Client',
           secret: `$S{ClientSecret}`,
           createdAt: `$S{ClientCreatedAt}`,
           domainId: domainId,

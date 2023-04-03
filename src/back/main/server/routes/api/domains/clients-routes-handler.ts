@@ -18,7 +18,7 @@ import {
 
 const entityName = 'Client'
 
-const ClientPostBodyZ = z.object({}).strict()
+const ClientPostBodyZ = z.object({ name: z.string().nonempty() }).strict()
 
 type ClientPostBody = z.infer<typeof ClientPostBodyZ>
 
@@ -42,11 +42,12 @@ const clientsRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
         return replyRequestValidationError(validation.error, reply)
       }
       const { domainId } = request.params
+      const { name } = request.body
       const domain = await prisma.domain.findFirst({ where: { id: domainId, ownerId: dev.id } })
       if (!domain) {
         return replyUnauthorizedError(reply)
       }
-      const client: Client = await prisma.client.create({ data: { domainId } })
+      const client: Client = await prisma.client.create({ data: { domainId, name } })
       return client
     },
   )

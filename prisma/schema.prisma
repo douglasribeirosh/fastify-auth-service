@@ -36,11 +36,13 @@ model Domain {
 
 model Client {
   id            String   @id @default(uuid())
+  name          String
   secret        String   @default(uuid())
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   domain        Domain @relation(fields: [domainId], references: [id])
   domainId      String
+  @@unique([name, domainId])
 }
 
 model User {
