@@ -150,7 +150,6 @@ describe('backend tests', () => {
           .expectJsonMatchStrict({
             id: string(),
             secret: string(),
-            active: true,
             domainId: domain.id,
             createdAt: string(),
             updatedAt: string(),
@@ -163,7 +162,6 @@ describe('backend tests', () => {
         const expectedClient = {
           id: `$S{ClientId}`,
           secret: `$S{ClientSecret}`,
-          active: true,
           createdAt: `$S{ClientCreatedAt}`,
           domainId: domainId,
           updatedAt: `$S{ClientUpdatedAt}`,

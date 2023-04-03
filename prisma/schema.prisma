@@ -37,7 +37,6 @@ model Domain {
 model Client {
   id            String   @id @default(uuid())
   secret        String   @default(uuid())
-  active        Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   domain        Domain @relation(fields: [domainId], references: [id])
