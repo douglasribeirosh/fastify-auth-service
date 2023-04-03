@@ -1,6 +1,6 @@
 _type: export
 __export_format: 4
-__export_date: 2023-04-03T14:24:05.920Z
+__export_date: 2023-04-03T14:55:20.130Z
 __export_source: insomnia.desktop.app:v2023.1.0
 resources:
   - _id: req_18681dc31da2493183a5bd3861542315
@@ -57,7 +57,7 @@ resources:
     _type: workspace
   - _id: req_3ff0c31a2c3d43b683c2c3f907b13b82
     parentId: fld_99d3ed37f3124462a590cfed6f13aded
-    modified: 1680524152708
+    modified: 1680533609023
     created: 1680522064404
     url: "{{ _.address }}/auth/confirm/:codeKey"
     name: confirm
@@ -74,11 +74,11 @@ resources:
     parameters:
       - id: pair_5112eb1054ef4bb1bafde15704b47e3f
         name: codeKey
-        value: 84ae377a-d601-440d-8ded-0c0f10fba060
+        value: 67c43a66-d3d5-46e0-8b21-5c8bf06d57ac
         description: ""
       - id: pair_9f80d6beadf44c798b3a5b991920296f
         name: code
-        value: "323816"
+        value: "638129"
         description: ""
     headers:
       - id: pair_4dc3ba43e6bd4741bf22b406392476f7
@@ -752,23 +752,19 @@ resources:
     _type: request
   - _id: req_28081cbdb8b74f0e860f7952f02be767
     parentId: fld_16037abfc6ad4f959dd3762679a04051
-    modified: 1680530411218
+    modified: 1680533692475
     created: 1680526481308
     url: "{{ _.address }}/api/auth-user/logout"
     name: logout
     description: ""
     method: POST
-    body:
-      mimeType: application/json
-      text: "{}"
+    body: {}
     parameters: []
     headers:
       - id: pair_b8b7ccac7cd241beb2d718328f06b0cb
         name: AuthorizationClient
         value: Bearer {{ _.client.token }}
         description: ""
-      - name: Content-Type
-        value: application/json
     authentication:
       type: bearer
       prefix: Bearer

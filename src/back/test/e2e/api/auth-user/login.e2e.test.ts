@@ -55,7 +55,6 @@ describe('backend tests', () => {
           .post('/api/auth-user/logout')
           .withHeaders('AuthorizationClient', `Bearer $S{ClientToken}`)
           .withHeaders('Authorization', `Bearer $S{Token}`)
-          .withJson({})
           // Then
           .expectStatus(204)
           .expectBody('')

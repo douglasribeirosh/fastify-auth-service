@@ -3,11 +3,14 @@ import { z } from 'zod'
 import { REDIS_LOGOUT_KEY_PREFIX } from '../../../common/constants'
 import { replyRequestValidationError } from '../../errors/httpErrors'
 
+const PostBodyZ = z.undefined()
+
+type PostBody = z.infer<typeof PostBodyZ>
+
 const logoutRoutesHandler: FastifyPluginAsync = (fastify: FastifyInstance) => {
-  fastify.post<{ Body: undefined }>('/', async (request, reply) => {
+  fastify.post<{ Body: PostBody }>('/', async (request, reply) => {
     const { log, config, redis } = fastify
-    const BodyZ = z.undefined()
-    const validation = BodyZ.safeParse(request.body)
+    const validation = PostBodyZ.safeParse(request.body)
     if (!validation.success) {
       return replyRequestValidationError('Error when confirming password or code', reply)
     }

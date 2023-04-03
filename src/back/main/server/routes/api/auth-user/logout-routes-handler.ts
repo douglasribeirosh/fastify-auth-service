@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { REDIS_DOMAIN_KEY_PREFIX, REDIS_LOGOUT_KEY_PREFIX } from '../../../../common/constants'
 import { replyRequestValidationError } from '../../../errors/httpErrors'
 
-const PostBodyZ = z.object({}).strict()
+const PostBodyZ = z.undefined()
 
 type PostBody = z.infer<typeof PostBodyZ>
 
