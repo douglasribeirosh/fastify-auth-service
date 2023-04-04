@@ -20,7 +20,9 @@ COPY --from=app-base /usr/src/app/node_modules ./node_modules
 COPY package*.json ./
 COPY src/ ./src
 COPY prisma/ ./prisma
+ARG DATABASE_URL
 RUN npx prisma generate
+RUN npx prisma migrate dev
 RUN npm run build && npm prune --ignore-scripts
 
 # Application image with dist
