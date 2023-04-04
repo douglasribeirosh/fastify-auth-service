@@ -2,7 +2,7 @@
 #Execute from folder this folder
 ##bash build.sh
 
-IMAGE_NAME="dsh-fastify-auth-api/web"
+IMAGE_NAME="dsh.fastify-auth-api/web"
 IMAGE_VERSION=`git show HEAD --pretty=format:"%h" --no-patch`
 NODE_VERSION=16.15.1
 NPM_VERSION=8.12.2
