@@ -12,4 +12,5 @@ export type Config = {
   smtpPass: string
   mailerFromName: string
   mailerFromAddr: string
+  devInitialData: boolean
 }

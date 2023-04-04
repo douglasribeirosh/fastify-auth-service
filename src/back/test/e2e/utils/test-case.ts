@@ -7,10 +7,14 @@ import { ServerT } from '../../../main/types/server'
 
 let server: ServerT | null
 
-const registerHooks = () => {
+const registerHooks = (devInitialData = false) => {
   beforeAll(async () => {
+    const config = defaultTestConfig
+    if (devInitialData) {
+      config.devInitialData = true
+    }
     let serverBaseUrl = 'http://localhost:33667'
-    server = await buildServer(defaultTestConfig)
+    server = await buildServer(config)
     console.debug('Server starting....')
     await startServer(server)
     request.setBaseUrl(serverBaseUrl)

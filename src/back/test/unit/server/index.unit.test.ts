@@ -7,7 +7,7 @@ describe('backend tests', () => {
   describe('index unit tests', () => {
     let module: {
       onRedisError: (log: FastifyBaseLogger) => (err: Error) => void
-      onFastifyError: (fastify: FastifyT) => (err: Error) => void
+      onFastifyReady: (fastify: FastifyT) => (err: Error) => void
     }
     beforeAll(() => {
       module = requireFromBaseDir('src/back/main/server')
@@ -25,11 +25,11 @@ describe('backend tests', () => {
         module.onRedisError(log)({ name: 'Error', message: 'Error message' })
         expect(error).toBeCalled()
       })
-      test('onFastifyError should be convered when error happens', () => {
+      test('onFastifyReady should be convered when error happens', () => {
         const trace = jest.fn()
         const error = jest.fn()
         const fastify = { log: { trace, error } } as FastifyT
-        module.onFastifyError(fastify)({ name: 'Error', message: 'Error message' })
+        module.onFastifyReady(fastify)({ name: 'Error', message: 'Error message' })
         expect(trace).not.toBeCalled()
         expect(error).toBeCalled()
       })

@@ -11,6 +11,7 @@ import { RedisClientType } from 'redis'
 import { authenticateDevPlugin } from '../fastify-plugins/authenticateDev'
 import { authenticateClientPlugin } from '../fastify-plugins/authenticateClient'
 import { authenticateUserPlugin } from '../fastify-plugins/authenticateUser'
+import { hash } from 'bcryptjs'
 
 declare module 'fastify' {
   export interface FastifyInstance {
@@ -37,6 +38,60 @@ declare module '@fastify/jwt' {
   export interface FastifyJWT {
     user: { id: string; username: string }
   }
+}
+
+const insertAndWarnDevInitialData = async (fastifyServer: FastifyT) => {
+  const { prisma, log } = fastifyServer
+  const password = 'dev'
+  const username = 'dev'
+  const passwordHash = await hash(password, 10)
+  const devData = { name: 'Dev', email: 'dev@dev.com', username, passwordHash }
+  const dev = await prisma.dev.upsert({
+    where: { username },
+    create: devData,
+    update: devData,
+  })
+  const domainData = {
+    name: 'domain.dev',
+    ownerId: dev.id,
+  }
+  const domain = await prisma.domain.upsert({
+    where: { name_ownerId: domainData },
+    create: domainData,
+    update: {},
+  })
+  const clientData = {
+    name: 'client.dev',
+    domainId: domain.id,
+  }
+  const client = await prisma.client.upsert({
+    where: { name_domainId: clientData },
+    create: clientData,
+    update: {},
+  })
+  const userPassword = 'user'
+  const userPasswordHash = await hash(userPassword, 10)
+  const userData = {
+    email: 'user@domain.dev',
+    nickname: 'kitty',
+    namePrefix: 'Mme.',
+    name: 'Name Less',
+    passwordHash: userPasswordHash,
+  }
+  const user = await prisma.user.upsert({
+    where: { email_domainId: { email: userData.email, domainId: domain.id } },
+    create: { ...userData, domainId: domain.id },
+    update: userData,
+  })
+  log.warn('*** Running for development purposes. Initial Data:')
+  log.warn('***************************************************')
+  log.warn({
+    dev: { ...dev, password },
+    domain,
+    client,
+    user: { ...user, password: userPassword },
+  })
+  log.warn('***************************************************')
 }
 
 const onRedisError = (log: FastifyBaseLogger) => (err: Error) => {
@@ -73,7 +128,7 @@ const buildServer = async (config: Config) => {
   return { fastifyServer }
 }
 
-const onFastifyError = (fastifyServer: FastifyT) => (err: Error) => {
+const onFastifyReady = (fastifyServer: FastifyT) => (err: Error) => {
   const { log } = fastifyServer
   if (err) {
     log.error(err)
@@ -87,15 +142,18 @@ const onFastifyError = (fastifyServer: FastifyT) => (err: Error) => {
 
 const startServer = async (server: ServerT) => {
   const { fastifyServer } = server
+  const { config, log } = fastifyServer
+  console.log({ config })
   const prisma = new PrismaClient()
   fastifyServer.decorate('prisma', prisma)
-  const { config } = fastifyServer
-  console.log({ config })
   fastifyServer.register(routesHandler)
   const { host, port } = config
-  fastifyServer.ready(onFastifyError(fastifyServer))
+  fastifyServer.ready(onFastifyReady(fastifyServer))
   await fastifyServer.listen({ host, port })
   console.log(`Listening on ${host}:${port}`)
+  if (config.devInitialData) {
+    await insertAndWarnDevInitialData(fastifyServer)
+  }
 }
 
 const stopServer = async (server: ServerT) => {
@@ -106,4 +164,4 @@ const stopServer = async (server: ServerT) => {
   await fastifyServer.close()
 }
 
-export { buildServer, startServer, stopServer, onRedisError, onFastifyError }
+export { buildServer, startServer, stopServer, onRedisError, onFastifyReady }

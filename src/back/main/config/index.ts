@@ -17,12 +17,13 @@ const defaultConfig: Config = {
   smtpPass: 'smtpPass',
   mailerFromName: 'Test User',
   mailerFromAddr: 'testuser@example.com',
+  devInitialData: false,
 }
 
 const defaultTestConfig: Config = {
   host: '0.0.0.0',
   jwtSecret: 'test-secret',
-  logLevel: 'debug',
+  logLevel: 'info',
   port: 33667,
   redisUrl: 'redis://localhost:6379/1',
   redisExpireSeconds: 60,
@@ -33,6 +34,7 @@ const defaultTestConfig: Config = {
   smtpPass: 'smtpPass',
   mailerFromName: 'Test User',
   mailerFromAddr: 'testuser@example.com',
+  devInitialData: false,
 }
 
 const buildConfigFromEnv = () => {
@@ -55,6 +57,9 @@ const buildConfigFromEnv = () => {
     smtpPass: process.env[`SMTP_PASS`] ?? defaultConfig.smtpPass,
     mailerFromName: process.env[`MAILER_FROM_NAME`] ?? defaultConfig.mailerFromName,
     mailerFromAddr: process.env[`MAILER_FROM_ADDR`] ?? defaultConfig.mailerFromAddr,
+    devInitialData: process.env[`DEV_INITIAL_DATA`]
+      ? process.env[`DEV_INITIAL_DATA`] === 'true'
+      : defaultConfig.smtpUseTestAccount,
   }
   return config
 }

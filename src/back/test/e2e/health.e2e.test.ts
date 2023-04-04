@@ -23,5 +23,25 @@ describe('backend tests', () => {
         testCase.cleanup()
       })
     })
+    describe('GET /health having dev initial data', () => {
+      registerHooks(true)
+      test('should respond a healthy json when using DEV_INITIAL_DATA true', async () => {
+        //Given
+        const testCase = e2e(getCurrentTestName())
+        // await delay(3000000, true)
+        await testCase
+          .step('Get healthcheck')
+          .spec()
+          // When
+          .get('/health')
+          // Then
+          .expectStatus(200)
+          .expectJson({
+            web: 'HEALTHY',
+          })
+          .toss()
+        testCase.cleanup()
+      })
+    })
   })
 })

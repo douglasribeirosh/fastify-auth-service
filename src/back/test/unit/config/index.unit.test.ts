@@ -35,6 +35,7 @@ describe('backend tests', () => {
         process.env[`REDIS_EXPIRE_SECONDS`] = '1'
         process.env[`SMTP_USE_TEST_ACCOUNT`] = 'false'
         process.env[`SMTP_PORT`] = '485'
+        process.env[`DEV_INITIAL_DATA`] = 'true'
         // When
         const configFromEnv = await config.buildConfigFromEnv()
         // Then

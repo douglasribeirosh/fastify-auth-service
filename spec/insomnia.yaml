@@ -1,6 +1,6 @@
 _type: export
 __export_format: 4
-__export_date: 2023-04-03T15:53:11.836Z
+__export_date: 2023-04-04T13:25:44.217Z
 __export_source: insomnia.desktop.app:v2023.1.0
 resources:
   - _id: req_18681dc31da2493183a5bd3861542315
@@ -57,7 +57,7 @@ resources:
     _type: workspace
   - _id: req_3ff0c31a2c3d43b683c2c3f907b13b82
     parentId: fld_99d3ed37f3124462a590cfed6f13aded
-    modified: 1680537149215
+    modified: 1680602143916
     created: 1680522064404
     url: "{{ _.address }}/auth/confirm/:codeKey"
     name: confirm
@@ -74,11 +74,11 @@ resources:
     parameters:
       - id: pair_5112eb1054ef4bb1bafde15704b47e3f
         name: codeKey
-        value: eb3328ee-03d8-4635-81d3-733e58b47e5b
+        value: 3b75383e-180d-4991-8804-f00f026c8a30
         description: ""
       - id: pair_9f80d6beadf44c798b3a5b991920296f
         name: code
-        value: "830585"
+        value: "604840"
         description: ""
     headers:
       - id: pair_4dc3ba43e6bd4741bf22b406392476f7
@@ -99,7 +99,7 @@ resources:
     _type: request
   - _id: req_fc93973d5537410dba70e313f1785f64
     parentId: fld_99d3ed37f3124462a590cfed6f13aded
-    modified: 1680526633453
+    modified: 1680611782127
     created: 1680522914228
     url: "{{ _.address }}/auth/login"
     name: login
@@ -122,6 +122,39 @@ resources:
         value: application/json
     authentication: {}
     metaSortKey: -1679396126851
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_a338383ac1cb46cab2f2da3bd49a3c46
+    parentId: fld_99d3ed37f3124462a590cfed6f13aded
+    modified: 1680611800364
+    created: 1680611791163
+    url: "{{ _.address }}/auth/login"
+    name: login dev
+    description: ""
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"username": "dev",
+        	"password": "dev"
+        }
+    parameters: []
+    headers:
+      - id: pair_4dc3ba43e6bd4741bf22b406392476f7
+        name: ""
+        value: ""
+        description: ""
+      - name: Content-Type
+        value: application/json
+    authentication: {}
+    metaSortKey: -1679396126826
     isPrivate: false
     settingStoreCookies: true
     settingSendCookies: true
@@ -813,7 +846,7 @@ resources:
     _type: request
   - _id: env_bee6cad3efb39b4cd6b6c8a98263509f6ce425d7
     parentId: wrk_63cf0a64141747e697b3efab6440aa3d
-    modified: 1680531620445
+    modified: 1680611707966
     created: 1678270435949
     name: Base Environment
     data:
@@ -885,3 +918,23 @@ resources:
     created: 1678270435961
     name: Example Test Suite
     _type: unit_test_suite
+  - _id: env_2930c9e3e9c448458cd972fbbdd4f3e0
+    parentId: env_bee6cad3efb39b4cd6b6c8a98263509f6ce425d7
+    modified: 1680614665453
+    created: 1680601253466
+    name: local-docker
+    data:
+      address: http://localhost:33668
+      dev:
+        token: "{% response 'body', 'req_a338383ac1cb46cab2f2da3bd49a3c46',
+          'b64::JC50b2tlbg==::46b', 'never', 60 %}"
+    dataPropertyOrder:
+      "&":
+        - address
+        - dev
+      "&~|dev":
+        - token
+    color: null
+    isPrivate: false
+    metaSortKey: 1680601253466
+    _type: environment
