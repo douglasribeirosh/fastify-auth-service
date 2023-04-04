@@ -19,7 +19,9 @@ WORKDIR /usr/src/app
 COPY --from=app-base /usr/src/app/node_modules ./node_modules
 COPY package*.json ./
 COPY src/ ./src
-RUN npm run build && npm prune --omit=dev --ignore-scripts
+COPY prisma/ ./prisma
+RUN npx prisma generate
+RUN npm run build && npm prune --ignore-scripts
 
 # Application image with dist
 FROM node-npm AS app
@@ -28,7 +30,10 @@ ARG IMAGE_VERSION
 WORKDIR /usr/src/app
 COPY --from=app-build /usr/src/app/node_modules ./node_modules
 COPY --from=app-build /usr/src/app/dist ./dist
+RUN mkdir ./prisma
+COPY --from=app-build /usr/src/app/prisma/dev.db ./prisma/
 COPY package*.json ./
 ENV IMAGE_VERSION ${IMAGE_VERSION}
 EXPOSE ${PORT}
-CMD ["node", "-r", "source-map-support/register", "dist/back/main/index"]
+CMD ["node", "dist/src/back/main/index"]
+#CMD ["sleep", "infinity"]

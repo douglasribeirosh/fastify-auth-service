@@ -9,10 +9,10 @@ NPM_VERSION=8.12.2
 PORT=8080
 docker build .. -f app/Dockerfile \
   --target app\
-  --tag registry.heroku.com/$IMAGE_NAME:$IMAGE_VERSION \
+  --tag $IMAGE_NAME:$IMAGE_VERSION \
   --build-arg IMAGE_VERSION=$IMAGE_VERSION \
   --build-arg NODE_VERSION=$NODE_VERSION \
   --build-arg NPM_VERSION=$NPM_VERSION \
   --build-arg PORT=$PORT
-docker tag registry.heroku.com/$IMAGE_NAME:$IMAGE_VERSION registry.heroku.com/$IMAGE_NAME
+docker tag $IMAGE_NAME:$IMAGE_VERSION $IMAGE_NAME
 
