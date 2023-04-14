@@ -22,6 +22,7 @@ docker run \
   -e REDIS_URL=redis://$NAME.redis:6379/0 \
   -e LOG_LEVEL=$LOG_LEVEL \
   -e DATABASE_URL="file:./dev.db" \
+  -v $NAME.prisma:/usr/src/app/prisma \
   -d \
   $IMAGE_NAME:$VERSION
 docker logs -f $NAME.app
