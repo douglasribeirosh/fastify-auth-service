@@ -142,7 +142,7 @@ const onFastifyReady = (fastifyServer: FastifyT) => (err: Error) => {
 
 const startServer = async (server: ServerT) => {
   const { fastifyServer } = server
-  const { config, log } = fastifyServer
+  const { config } = fastifyServer
   console.log({ config })
   const prisma = new PrismaClient()
   fastifyServer.decorate('prisma', prisma)
