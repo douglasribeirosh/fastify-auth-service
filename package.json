@@ -1,7 +1,23 @@
 {
-  "name": "fastify-auth-api",
-  "version": "0.0.1",
+  "name": "fastify-auth-service",
+  "version": "1.0.0",
   "private": true,
+  "description": "Simple authentication API built with Fastify",
+  "author": "Douglas Ribeiro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/douglasribeirosh/fastify-auth-service.git"
+  },
+  "keywords": [
+    "fastify",
+    "auth",
+    "authentication",
+    "api",
+    "typescript",
+    "prisma",
+    "docker"
+  ],
   "scripts": {
     "build": "npm run build:back",
     "build:back": "tsc -p src/back/main/tsconfig.json",
@@ -26,7 +42,6 @@
     "with:nodemon": "npx -y nodemon@2.0.20",
     "with:opener": "npx -y opener@1.5.2"
   },
-  "description": "Simple authentication api with fastify",
   "dependencies": {
     "@fastify/jwt": "6.7.0",
     "@prisma/client": "4.11.0",
@@ -43,6 +58,9 @@
   "volta": {
     "node": "16.15.1",
     "npm": "8.12.2"
+  },
+  "engines": {
+    "node": ">=16.15.0"
   },
   "devDependencies": {
     "@swc-node/register": "1.6.2",
